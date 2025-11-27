@@ -52,6 +52,13 @@ if not api_key:
     """)
     st.stop()
 
+# Debug logging (remove after troubleshooting)
+import sys
+print(f"DEBUG APP: API Key set: {bool(api_key)}", file=sys.stderr)
+print(f"DEBUG APP: Endpoint: {endpoint}", file=sys.stderr)
+print(f"DEBUG APP: API Version: {api_version}", file=sys.stderr)
+print(f"DEBUG APP: Deployment: {deployment}", file=sys.stderr)
+
 # ===========================
 # Page Configuration
 # ===========================

@@ -27,7 +27,7 @@ class NutritionAnalyzer:
         self.api_key = api_key
         self.endpoint = endpoint or "https://hkust.azure-api.net/"
         self.deployment = deployment or "gpt-4o"
-        self.api_version = api_version or "2024-05-01-preview"
+        self.api_version = api_version or "2023-05-15"
         
         # Ensure endpoint ends with /
         if self.endpoint and not self.endpoint.endswith("/"):
@@ -41,6 +41,14 @@ class NutritionAnalyzer:
             )
         except Exception as e:
             error_msg = str(e)
+            # Print detailed debug info to logs
+            import sys
+            print(f"DEBUG: Endpoint: {self.endpoint}", file=sys.stderr)
+            print(f"DEBUG: API Version: {self.api_version}", file=sys.stderr)
+            print(f"DEBUG: Deployment: {self.deployment}", file=sys.stderr)
+            print(f"DEBUG: API Key length: {len(api_key) if api_key else 0}", file=sys.stderr)
+            print(f"DEBUG: Error: {error_msg}", file=sys.stderr)
+            
             # Provide more specific error messages
             if "invalid_request_error" in error_msg.lower() or "authentication" in error_msg.lower():
                 raise RuntimeError(f"Authentication failed. Please verify your AZURE_OPENAI_API_KEY is correct. Error: {error_msg}")
