@@ -86,6 +86,9 @@ def init_session_state():
     
     if "current_analysis" not in st.session_state:
         st.session_state.current_analysis = None
+    
+    if "analysis_history" not in st.session_state:
+        st.session_state.analysis_history = []
 
 init_session_state()
 
@@ -360,7 +363,7 @@ def display_meal_analysis(analysis_text: str):
     col1, col2 = st.columns([1.2, 1])
     
     with col1:
-        st.markdown('<div class="section-header">🍽️ Detected Food Items</div>', unsafe_allow_html=True)
+        st.markdown('<div class="section-header">🍽️ Your Meal</div>', unsafe_allow_html=True)
         if food_description:
             st.markdown(f'<div class="food-item">{food_description}</div>', unsafe_allow_html=True)
         else:
@@ -730,11 +733,25 @@ with tab1:
                         st.success("✅ Analysis complete!", icon="✅")
                         
                         display_meal_analysis(analysis)
+                        
+                        # Add to history (keep last 5)
+                        from datetime import datetime
+                        rating_score, rating_max = extract_rating(analysis)
+                        # Extract food from analysis (first sentence usually contains food name)
+                        food_name = analysis.split('.')[0] if '.' in analysis else analysis[:100]
+                        history_entry = {
+                            "timestamp": datetime.now().strftime("%H:%M:%S"),
+                            "food": food_name[:100],
+                            "rating": f"{rating_score}/{rating_max}" if rating_score else "N/A",
+                            "analysis": analysis
+                        }
+                        st.session_state.analysis_history.insert(0, history_entry)
+                        if len(st.session_state.analysis_history) > 5:
+                            st.session_state.analysis_history = st.session_state.analysis_history[:5]
                             
                     except Exception as e:
                         st.error(f"❌ Error analyzing image: {str(e)}")
                         st.info("Make sure your Azure OpenAI API key is correct in .env file")
-                    st.info("Make sure your Azure OpenAI API key is correct in .env file")
     
     else:  # Describe Meal
         st.markdown("### 📝 Describe Your Meal")
@@ -768,11 +785,22 @@ with tab1:
                         
                         display_meal_analysis(analysis)
                         
+                        # Add to history (keep last 5)
+                        from datetime import datetime
+                        rating_score, rating_max = extract_rating(analysis)
+                        history_entry = {
+                            "timestamp": datetime.now().strftime("%H:%M:%S"),
+                            "food": meal_description[:100],
+                            "rating": f"{rating_score}/{rating_max}" if rating_score else "N/A",
+                            "analysis": analysis
+                        }
+                        st.session_state.analysis_history.insert(0, history_entry)
+                        if len(st.session_state.analysis_history) > 5:
+                            st.session_state.analysis_history = st.session_state.analysis_history[:5]
+                        
                     except Exception as e:
                         st.error(f"❌ Error analyzing meal: {str(e)}")
                         st.info("Make sure your Azure OpenAI API key is correct in .env file")
-            else:
-                st.warning("Please describe your meal first!")
 
 # ===========================
 # Tab 2: Personalized Coaching
@@ -820,6 +848,23 @@ with tab2:
             except Exception as e:
                 st.error(f"❌ Error generating coaching: {str(e)}")
                 st.info("Make sure your Azure OpenAI API key is correct in .env file")
+
+# ===========================
+# Analysis History Section
+# ===========================
+
+st.divider()
+st.markdown('<div class="section-header">📋 Analysis History (Last 5)</div>', unsafe_allow_html=True)
+
+if st.session_state.analysis_history:
+    for idx, record in enumerate(st.session_state.analysis_history, 1):
+        with st.expander(f"📌 {idx}. {record['food'][:40]}... ({record['timestamp']}) - Rating: {record['rating']}"):
+            st.markdown(f"**Food Analyzed:** {record['food']}")
+            st.markdown(f"**Health Rating:** {record['rating']}")
+            st.markdown(f"**Full Analysis:**")
+            st.markdown(record['analysis'])
+else:
+    st.info("🍽️ No analysis history yet. Start by analyzing a meal to see your past records here!")
 
 # ===========================
 # Footer
