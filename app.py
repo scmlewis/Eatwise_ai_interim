@@ -89,6 +89,9 @@ def init_session_state():
     
     if "analysis_history" not in st.session_state:
         st.session_state.analysis_history = []
+    
+    if "analysis_method" not in st.session_state:
+        st.session_state.analysis_method = "text"
 
 init_session_state()
 
@@ -677,15 +680,32 @@ with tab1:
     st.markdown("## 🍽️ Meal Analysis")
     st.markdown("Analyze your meal by **photo** or by **description**. Get instant nutrition insights and personalized recommendations.")
     
-    # Choose analysis method
-    analysis_method = st.radio(
-        "How would you like to analyze your meal?",
-        ["📝 Describe Your Meal", "📸 Upload Food Photo"],
-        horizontal=True,
-        label_visibility="collapsed"
-    )
+    # Segmented button group for analysis method
+    btn_col1, btn_col2 = st.columns(2, gap="small")
     
-    if analysis_method == "📸 Upload Food Photo":
+    with btn_col1:
+        if st.button(
+            "📝 Describe Your Meal",
+            use_container_width=True,
+            type="primary" if st.session_state.analysis_method == "text" else "secondary",
+            key="btn_describe"
+        ):
+            st.session_state.analysis_method = "text"
+            st.rerun()
+    
+    with btn_col2:
+        if st.button(
+            "📸 Upload Food Photo",
+            use_container_width=True,
+            type="primary" if st.session_state.analysis_method == "image" else "secondary",
+            key="btn_upload"
+        ):
+            st.session_state.analysis_method = "image"
+            st.rerun()
+    
+    st.markdown("")  # Spacing
+    
+    if st.session_state.analysis_method == "image":
         st.markdown("### 📸 Upload a Food Photo")
         uploaded_file = st.file_uploader(
             "Choose a food image",
@@ -753,7 +773,7 @@ with tab1:
                         st.error(f"❌ Error analyzing image: {str(e)}")
                         st.info("Make sure your Azure OpenAI API key is correct in .env file")
     
-    else:  # Describe Meal
+    elif st.session_state.analysis_method == "text":  # Describe Meal
         st.markdown("### 📝 Describe Your Meal")
         meal_description = st.text_area(
             "Describe your meal in detail",
