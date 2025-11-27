@@ -85,16 +85,19 @@ class NutritionAnalyzer:
             # Build personalization context
             context = self._build_profile_context(profile)
             
-            prompt = f"""Analyze this food image and provide:
-1. Detected food items and quantities
-2. Estimated nutrition (calories, protein, carbs, fat, fiber, sodium, sugar)
-3. Health rating (1-10)
-4. Personalized tips based on the user profile
+            prompt = f"""Analyze this food image and provide a comprehensive analysis including:
+
+1. **Detected Food Items**: Name and estimated quantity of each item
+2. **Nutrition Facts** (must include): Calories, Protein, Carbs, Fat, Fiber, Sodium, and Sugar
+3. **Health Rating** (REQUIRED - format as): "Health Rating: X/10" where X is a number from 1-10
+4. **Personalized Tips**: Specific recommendations based on the user profile
 
 User Profile:
 {context}
 
-Format your response as a clear, readable paragraph. Include nutrition estimates and personalized health advice."""
+IMPORTANT: You MUST include a health rating in the format "Health Rating: X/10" where X is between 1 and 10.
+
+Format your response as clear, readable paragraphs. Be specific with numbers for all nutritional values."""
             
             response = self.client.chat.completions.create(
                 model=self.deployment,
@@ -139,19 +142,21 @@ Format your response as a clear, readable paragraph. Include nutrition estimates
             # Build personalization context
             context = self._build_profile_context(profile)
             
-            prompt = f"""Analyze this meal and provide:
-1. Identified food items and estimated portions
-2. Estimated nutrition (calories, protein, carbs, fat, fiber, sodium, sugar)
-3. Health rating (1-10)
-4. Personalized recommendations based on user profile
-5. How it aligns with their health goal
+            prompt = f"""Analyze this meal and provide a comprehensive analysis including:
+
+1. **Identified Food Items**: List each food item with estimated portion size
+2. **Nutrition Facts** (must include): Calories, Protein (g), Carbs (g), Fat (g), Fiber (g), Sodium (mg), and Sugar (g)
+3. **Health Rating** (REQUIRED - format as): "Health Rating: X/10" where X is a number from 1-10
+4. **Personalized Recommendations**: Based on their profile and health goals
 
 User Profile:
 {context}
 
 Meal Description: {meal_description}
 
-Format your response as a clear, readable paragraph with practical advice."""
+IMPORTANT: You MUST include a health rating in the format "Health Rating: X/10" where X is between 1 and 10.
+
+Format your response as clear, readable paragraphs. Be specific with numeric values for all nutritional facts."""
             
             response = self.client.chat.completions.create(
                 model=self.deployment,

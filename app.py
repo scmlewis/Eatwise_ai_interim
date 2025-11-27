@@ -168,9 +168,10 @@ def extract_nutrition_numbers(text: str) -> dict:
 
 def extract_rating(text: str) -> tuple:
     """Extract health rating score and max score"""
-    # Look for patterns like "7/10", "7 out of 10", "Rating: 7/10"
+    # Look for patterns like "Health Rating: 7/10", "7/10", "7 out of 10"
     patterns = [
-        r'rating[:\s]+(\d+)\s*(?:/|out\s*of)\s*(\d+)',
+        r'health\s+rating\s*:\s*(\d+)\s*(?:/|out\s*of)\s*(\d+)',
+        r'rating\s*:\s*(\d+)\s*(?:/|out\s*of)\s*(\d+)',
         r'(\d+)\s*(?:/|out\s*of)\s*(\d+)\s*(?:for\s+health|health\s+rating)',
         r'(?:health\s+)?(?:rating[:\s]+)?(\d+)\s*(?:/|out\s*of)\s*(\d+)',
     ]
@@ -182,7 +183,7 @@ def extract_rating(text: str) -> tuple:
             try:
                 score = int(match.group(1))
                 max_score = int(match.group(2))
-                if 0 <= score <= max_score and max_score > 0:
+                if 0 < score <= max_score:  # Score must be positive
                     return score, max_score
             except (ValueError, IndexError):
                 continue
