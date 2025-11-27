@@ -10,13 +10,21 @@ from PIL import Image
 import io
 import re
 from nutrition_analyzer import NutritionAnalyzer
-from config import APP_NAME, OPENAI_API_KEY, AZURE_OPENAI_ENDPOINT, AZURE_OPENAI_DEPLOYMENT
+from config import APP_NAME, OPENAI_API_KEY, AZURE_OPENAI_ENDPOINT, AZURE_OPENAI_DEPLOYMENT, get_config_from_secrets
 
 # ===========================
-# API Key Validation
+# API Key Validation & Configuration
 # ===========================
 
-if not OPENAI_API_KEY:
+# Try to get secrets from Streamlit Cloud first
+secrets_api_key, secrets_endpoint, secrets_deployment = get_config_from_secrets()
+
+# Use secrets if available, otherwise use environment variables
+api_key = secrets_api_key or OPENAI_API_KEY
+endpoint = secrets_endpoint or AZURE_OPENAI_ENDPOINT
+deployment = secrets_deployment or AZURE_OPENAI_DEPLOYMENT
+
+if not api_key:
     st.error("""
     ❌ **Missing Azure OpenAI API Key**
     
@@ -612,9 +620,9 @@ with tab1:
             
             with st.spinner("🔍 Analyzing your meal photo..."):
                 analyzer = NutritionAnalyzer(
-                    OPENAI_API_KEY,
-                    AZURE_OPENAI_ENDPOINT,
-                    AZURE_OPENAI_DEPLOYMENT
+                    api_key,
+                    endpoint,
+                    deployment
                 )
                 
                 # Convert image to bytes
@@ -653,9 +661,9 @@ with tab1:
             if meal_description.strip():
                 with st.spinner("📊 Analyzing your meal..."):
                     analyzer = NutritionAnalyzer(
-                        OPENAI_API_KEY,
-                        AZURE_OPENAI_ENDPOINT,
-                        AZURE_OPENAI_DEPLOYMENT
+                        api_key,
+                        endpoint,
+                        deployment
                     )
                     
                     try:
@@ -700,9 +708,9 @@ with tab2:
     if st.button("💡 Get Coaching Tips", use_container_width=True, type="primary"):
         with st.spinner("✨ Generating personalized tips..."):
             analyzer = NutritionAnalyzer(
-                OPENAI_API_KEY,
-                AZURE_OPENAI_ENDPOINT,
-                AZURE_OPENAI_DEPLOYMENT
+                api_key,
+                endpoint,
+                deployment
             )
             
             try:

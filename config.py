@@ -4,7 +4,6 @@ Only essential settings for LLM-powered interim version
 """
 
 import os
-import streamlit as st
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -18,17 +17,22 @@ APP_VERSION = "1.0.0-interim"
 
 # ===========================
 # Azure OpenAI Configuration (HKUST - works in Hong Kong)
+# Note: These will be overridden by Streamlit secrets if available
 # ===========================
 
-# Try to get from Streamlit secrets first (for Streamlit Cloud), then from .env (for local dev)
-try:
-    OPENAI_API_KEY = st.secrets.get("AZURE_OPENAI_API_KEY") or os.getenv("AZURE_OPENAI_API_KEY")
-    AZURE_OPENAI_ENDPOINT = st.secrets.get("AZURE_OPENAI_ENDPOINT") or os.getenv("AZURE_OPENAI_ENDPOINT", "https://hkust.azure-api.net/")
-    AZURE_OPENAI_DEPLOYMENT = st.secrets.get("AZURE_OPENAI_DEPLOYMENT") or os.getenv("AZURE_OPENAI_DEPLOYMENT", "gpt-4o")
-except:
-    # If st.secrets is not available (not in Streamlit context), use env vars
-    OPENAI_API_KEY = os.getenv("AZURE_OPENAI_API_KEY")
-    AZURE_OPENAI_ENDPOINT = os.getenv("AZURE_OPENAI_ENDPOINT", "https://hkust.azure-api.net/")
-    AZURE_OPENAI_DEPLOYMENT = os.getenv("AZURE_OPENAI_DEPLOYMENT", "gpt-4o")
+OPENAI_API_KEY = os.getenv("AZURE_OPENAI_API_KEY")
+AZURE_OPENAI_ENDPOINT = os.getenv("AZURE_OPENAI_ENDPOINT", "https://hkust.azure-api.net/")
+AZURE_OPENAI_DEPLOYMENT = os.getenv("AZURE_OPENAI_DEPLOYMENT", "gpt-4o")
 
-# Note: API key validation moved to app.py for better error messaging
+
+def get_config_from_secrets():
+    """Get configuration from Streamlit secrets (for Streamlit Cloud)"""
+    try:
+        import streamlit as st
+        api_key = st.secrets.get("AZURE_OPENAI_API_KEY")
+        endpoint = st.secrets.get("AZURE_OPENAI_ENDPOINT", "https://hkust.azure-api.net/")
+        deployment = st.secrets.get("AZURE_OPENAI_DEPLOYMENT", "gpt-4o")
+        
+        return api_key, endpoint, deployment
+    except:
+        return None, None, None
