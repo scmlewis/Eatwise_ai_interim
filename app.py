@@ -10,26 +10,17 @@ from PIL import Image
 import io
 import re
 from nutrition_analyzer import NutritionAnalyzer
-from config import APP_NAME, OPENAI_API_KEY, AZURE_OPENAI_ENDPOINT, AZURE_OPENAI_DEPLOYMENT, AZURE_OPENAI_API_VERSION, get_config_from_secrets
+from config import APP_NAME, OPENAI_API_KEY, AZURE_OPENAI_ENDPOINT, AZURE_OPENAI_DEPLOYMENT, AZURE_OPENAI_API_VERSION
 
 # ===========================
 # API Key Validation & Configuration
 # ===========================
 
-# Try to get secrets from Streamlit Cloud first
-secrets_api_key, secrets_endpoint, secrets_deployment, secrets_api_version = get_config_from_secrets()
-
-# Use secrets if available, otherwise use environment variables
-api_key = secrets_api_key or OPENAI_API_KEY
-endpoint = secrets_endpoint or AZURE_OPENAI_ENDPOINT
-deployment = secrets_deployment or AZURE_OPENAI_DEPLOYMENT
-api_version = secrets_api_version or AZURE_OPENAI_API_VERSION
-
-if not api_key:
+if not OPENAI_API_KEY:
     st.error("""
     ❌ **Missing Azure OpenAI API Key**
     
-    Please set up your `.env` file with the required credentials:
+    Please configure your Streamlit secrets or .env file with:
     
     ```
     AZURE_OPENAI_API_KEY=your_api_key_here
@@ -41,13 +32,6 @@ if not api_key:
     See `docs/setup/.env.example` for a template.
     """)
     st.stop()
-
-# Debug info (shown only if debugging)
-if False:  # Set to True for debugging
-    st.write(f"API Key (first 10 chars): {api_key[:10] if api_key else 'None'}...")
-    st.write(f"Endpoint: {endpoint}")
-    st.write(f"Deployment: {deployment}")
-    st.write(f"API Version: {api_version}")
 
 # ===========================
 # Page Configuration
@@ -629,10 +613,10 @@ with tab1:
             
             with st.spinner("🔍 Analyzing your meal photo..."):
                 analyzer = NutritionAnalyzer(
-                    api_key,
-                    endpoint,
-                    deployment,
-                    api_version
+                    OPENAI_API_KEY,
+                    AZURE_OPENAI_ENDPOINT,
+                    AZURE_OPENAI_DEPLOYMENT,
+                    AZURE_OPENAI_API_VERSION
                 )
                 
                 # Convert image to bytes
@@ -671,10 +655,10 @@ with tab1:
             if meal_description.strip():
                 with st.spinner("📊 Analyzing your meal..."):
                     analyzer = NutritionAnalyzer(
-                        api_key,
-                        endpoint,
-                        deployment,
-                        api_version
+                        OPENAI_API_KEY,
+                        AZURE_OPENAI_ENDPOINT,
+                        AZURE_OPENAI_DEPLOYMENT,
+                        AZURE_OPENAI_API_VERSION
                     )
                     
                     try:
@@ -719,10 +703,10 @@ with tab2:
     if st.button("💡 Get Coaching Tips", use_container_width=True, type="primary"):
         with st.spinner("✨ Generating personalized tips..."):
             analyzer = NutritionAnalyzer(
-                api_key,
-                endpoint,
-                deployment,
-                api_version
+                OPENAI_API_KEY,
+                AZURE_OPENAI_ENDPOINT,
+                AZURE_OPENAI_DEPLOYMENT,
+                AZURE_OPENAI_API_VERSION
             )
             
             try:
