@@ -13,6 +13,26 @@ from nutrition_analyzer import NutritionAnalyzer
 from config import APP_NAME, OPENAI_API_KEY, AZURE_OPENAI_ENDPOINT, AZURE_OPENAI_DEPLOYMENT
 
 # ===========================
+# API Key Validation
+# ===========================
+
+if not OPENAI_API_KEY:
+    st.error("""
+    ❌ **Missing Azure OpenAI API Key**
+    
+    Please set up your `.env` file with the required credentials:
+    
+    ```
+    AZURE_OPENAI_API_KEY=your_api_key_here
+    AZURE_OPENAI_ENDPOINT=https://hkust.azure-api.net/
+    AZURE_OPENAI_DEPLOYMENT=gpt-4o
+    ```
+    
+    See `docs/setup/.env.example` for a template.
+    """)
+    st.stop()
+
+# ===========================
 # Page Configuration
 # ===========================
 
