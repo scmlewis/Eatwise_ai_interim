@@ -13,10 +13,29 @@ from nutrition_analyzer import NutritionAnalyzer
 from config import APP_NAME, OPENAI_API_KEY, AZURE_OPENAI_ENDPOINT, AZURE_OPENAI_DEPLOYMENT, AZURE_OPENAI_API_VERSION
 
 # ===========================
-# API Key Validation & Configuration
+# API Configuration (Override with Streamlit secrets if available)
 # ===========================
 
-if not OPENAI_API_KEY:
+api_key = OPENAI_API_KEY
+endpoint = AZURE_OPENAI_ENDPOINT
+deployment = AZURE_OPENAI_DEPLOYMENT
+api_version = AZURE_OPENAI_API_VERSION
+
+# Try to load from Streamlit secrets (for Streamlit Cloud)
+try:
+    api_key = st.secrets.get("AZURE_OPENAI_API_KEY") or api_key
+    endpoint = st.secrets.get("AZURE_OPENAI_ENDPOINT") or endpoint
+    deployment = st.secrets.get("AZURE_OPENAI_DEPLOYMENT") or deployment
+    api_version = st.secrets.get("AZURE_OPENAI_API_VERSION") or api_version
+except (AttributeError, FileNotFoundError):
+    # st.secrets not available, use config values
+    pass
+
+# ===========================
+# API Key Validation
+# ===========================
+
+if not api_key:
     st.error("""
     ❌ **Missing Azure OpenAI API Key**
     
@@ -613,10 +632,10 @@ with tab1:
             
             with st.spinner("🔍 Analyzing your meal photo..."):
                 analyzer = NutritionAnalyzer(
-                    OPENAI_API_KEY,
-                    AZURE_OPENAI_ENDPOINT,
-                    AZURE_OPENAI_DEPLOYMENT,
-                    AZURE_OPENAI_API_VERSION
+                    api_key,
+                    endpoint,
+                    deployment,
+                    api_version
                 )
                 
                 # Convert image to bytes
@@ -655,10 +674,10 @@ with tab1:
             if meal_description.strip():
                 with st.spinner("📊 Analyzing your meal..."):
                     analyzer = NutritionAnalyzer(
-                        OPENAI_API_KEY,
-                        AZURE_OPENAI_ENDPOINT,
-                        AZURE_OPENAI_DEPLOYMENT,
-                        AZURE_OPENAI_API_VERSION
+                        api_key,
+                        endpoint,
+                        deployment,
+                        api_version
                     )
                     
                     try:
@@ -703,10 +722,10 @@ with tab2:
     if st.button("💡 Get Coaching Tips", use_container_width=True, type="primary"):
         with st.spinner("✨ Generating personalized tips..."):
             analyzer = NutritionAnalyzer(
-                OPENAI_API_KEY,
-                AZURE_OPENAI_ENDPOINT,
-                AZURE_OPENAI_DEPLOYMENT,
-                AZURE_OPENAI_API_VERSION
+                api_key,
+                endpoint,
+                deployment,
+                api_version
             )
             
             try:
