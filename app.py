@@ -35,11 +35,19 @@ if not api_key:
     AZURE_OPENAI_API_KEY=your_api_key_here
     AZURE_OPENAI_ENDPOINT=https://hkust.azure-api.net/
     AZURE_OPENAI_DEPLOYMENT=gpt-4o
+    AZURE_OPENAI_API_VERSION=2023-05-15
     ```
     
     See `docs/setup/.env.example` for a template.
     """)
     st.stop()
+
+# Debug info (shown only if debugging)
+if False:  # Set to True for debugging
+    st.write(f"API Key (first 10 chars): {api_key[:10] if api_key else 'None'}...")
+    st.write(f"Endpoint: {endpoint}")
+    st.write(f"Deployment: {deployment}")
+    st.write(f"API Version: {api_version}")
 
 # ===========================
 # Page Configuration

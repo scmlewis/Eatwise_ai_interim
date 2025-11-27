@@ -29,6 +29,10 @@ class NutritionAnalyzer:
         self.deployment = deployment or "gpt-4o"
         self.api_version = api_version or "2024-05-01-preview"
         
+        # Ensure endpoint ends with /
+        if self.endpoint and not self.endpoint.endswith("/"):
+            self.endpoint += "/"
+        
         try:
             self.client = AzureOpenAI(
                 api_key=api_key,
@@ -36,7 +40,16 @@ class NutritionAnalyzer:
                 azure_endpoint=self.endpoint
             )
         except Exception as e:
-            raise RuntimeError(f"Failed to initialize Azure OpenAI client: {str(e)}. Please verify your API key, endpoint, and API version are correct.")
+            error_msg = str(e)
+            # Provide more specific error messages
+            if "invalid_request_error" in error_msg.lower() or "authentication" in error_msg.lower():
+                raise RuntimeError(f"Authentication failed. Please verify your AZURE_OPENAI_API_KEY is correct. Error: {error_msg}")
+            elif "endpoint" in error_msg.lower():
+                raise RuntimeError(f"Invalid endpoint. Configured endpoint: {self.endpoint}. Error: {error_msg}")
+            elif "api_version" in error_msg.lower() or "version" in error_msg.lower():
+                raise RuntimeError(f"Invalid API version '{self.api_version}'. Error: {error_msg}")
+            else:
+                raise RuntimeError(f"Failed to initialize Azure OpenAI client. Endpoint: {self.endpoint}, API Version: {self.api_version}. Error: {error_msg}")
     
     def detect_food_from_image(self, image_data: bytes, profile: Dict) -> str:
         """
