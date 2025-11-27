@@ -97,51 +97,96 @@ def extract_nutrition_numbers(text: str) -> dict:
     """Extract nutrition information from the analysis text"""
     nutrition = {}
     
-    # Pattern matching for nutrition data - more flexible
+    # More flexible pattern matching for nutrition data
     patterns = {
-        'calories': r'(\d+)\s*(?:to|-)\s*(\d+)\s*calories|approximately?\s*(\d+)\s*calories',
-        'protein': r'(\d+)\s*(?:to|-)\s*(\d+)\s*g(?:ram)?s?\s*of\s*protein|(\d+)\s*(?:gram)?s?\s*(?:of\s*)?protein',
-        'carbs': r'(\d+)\s*(?:to|-)\s*(\d+)\s*g(?:ram)?s?\s*of\s*carbohydrates|(\d+)\s*g(?:ram)?s?\s*(?:of\s*)?carb',
-        'fat': r'(\d+)\s*(?:to|-)\s*(\d+)\s*g(?:ram)?s?\s*of\s*fat|(\d+)\s*g(?:ram)?s?\s*(?:of\s*)?fat',
-        'fiber': r'(\d+)\s*(?:to|-)\s*(\d+)\s*g(?:ram)?s?\s*of\s*fiber|(\d+)\s*g(?:ram)?s?\s*(?:of\s*)?fiber',
-        'sodium': r'(\d+)\s*(?:to|-)\s*(\d+)\s*mg\s*of\s*sodium|(\d+)\s*mg\s*sodium',
-        'sugar': r'(\d+)\s*(?:to|-)\s*(\d+)\s*g(?:ram)?s?\s*of\s*sugar|(\d+)\s*g(?:ram)?s?\s*(?:of\s*)?sugar'
-    }
-    
-    # Unit mappings for cleanup
-    unit_map = {
-        'calories': 'calories',
-        'protein': 'g',
-        'carbs': 'g',
-        'fat': 'g',
-        'fiber': 'g',
-        'sodium': 'mg',
-        'sugar': 'g'
+        'calories': [
+            r'(\d+)(?:\s*-\s*|\s*to\s*)(\d+)\s*calories',
+            r'approximately?\s*(\d+)\s*calories',
+            r'about\s*(\d+)\s*kcal',
+            r'(\d+)\s*cal(?:ories)?'
+        ],
+        'protein': [
+            r'(\d+)(?:\s*-\s*|\s*to\s*)(\d+)\s*g(?:ram)?s?(?:\s*of)?\s*protein',
+            r'(\d+)\s*(?:gram)?s?(?:\s*of)?\s*protein',
+            r'protein:?\s*(\d+)\s*g'
+        ],
+        'carbs': [
+            r'(\d+)(?:\s*-\s*|\s*to\s*)(\d+)\s*g(?:ram)?s?(?:\s*of)?\s*carbs?(?:ohydrate)?s?',
+            r'(\d+)\s*g(?:ram)?s?(?:\s*of)?\s*carbs?(?:ohydrate)?s?',
+            r'carbs?(?:ohydrate)?s?:?\s*(\d+)\s*g'
+        ],
+        'fat': [
+            r'(\d+)(?:\s*-\s*|\s*to\s*)(\d+)\s*g(?:ram)?s?(?:\s*of)?\s*fat',
+            r'(\d+)\s*g(?:ram)?s?(?:\s*of)?\s*fat',
+            r'fat:?\s*(\d+)\s*g'
+        ],
+        'fiber': [
+            r'(\d+)(?:\s*-\s*|\s*to\s*)(\d+)\s*g(?:ram)?s?(?:\s*of)?\s*fiber',
+            r'(\d+)\s*g(?:ram)?s?(?:\s*of)?\s*fiber',
+            r'fiber:?\s*(\d+)\s*g'
+        ],
+        'sodium': [
+            r'(\d+)(?:\s*-\s*|\s*to\s*)(\d+)\s*mg(?:\s*of)?\s*sodium',
+            r'(\d+)\s*mg(?:\s*of)?\s*sodium',
+            r'sodium:?\s*(\d+)\s*mg'
+        ],
+        'sugar': [
+            r'(\d+)(?:\s*-\s*|\s*to\s*)(\d+)\s*g(?:ram)?s?(?:\s*of)?\s*sugar',
+            r'(\d+)\s*g(?:ram)?s?(?:\s*of)?\s*sugar',
+            r'sugar:?\s*(\d+)\s*g'
+        ]
     }
     
     text_lower = text.lower()
-    for key, pattern in patterns.items():
-        match = re.search(pattern, text_lower, re.IGNORECASE)
-        if match:
-            # Get the matched text and clean it
-            raw_value = match.group(0).strip()
-            
-            # Remove nutrient name from value, keeping only numbers and units
-            # e.g., "20-30 grams of protein" -> "20-30 g"
-            cleaned_value = re.sub(r'\s*(?:of\s+)?(?:protein|carbohydrates?|fat|fiber|sugar|sodium|calorie)', '', raw_value, flags=re.IGNORECASE).strip()
-            
-            # Standardize units
-            cleaned_value = cleaned_value.replace('grams', 'g').replace('gram', 'g').replace('milligrams', 'mg').replace('milligram', 'mg')
-            
-            nutrition[key] = cleaned_value
+    
+    for key, pattern_list in patterns.items():
+        for pattern in pattern_list:
+            match = re.search(pattern, text_lower, re.IGNORECASE)
+            if match:
+                # Get the matched text
+                raw_value = match.group(0).strip()
+                
+                # Extract just the numbers and units
+                numbers = re.findall(r'\d+', raw_value)
+                if numbers:
+                    # For ranges, show "X-Y" format; for single values, just show the number
+                    if len(numbers) >= 2 and 'to' in raw_value.lower() or '-' in raw_value:
+                        value = f"{numbers[0]}-{numbers[1]}"
+                    else:
+                        value = numbers[0] if numbers else raw_value
+                    
+                    # Add unit
+                    if key == 'calories':
+                        nutrition[key] = f"{value} cal"
+                    elif key == 'sodium':
+                        nutrition[key] = f"{value} mg"
+                    else:
+                        nutrition[key] = f"{value} g"
+                    break  # Found match for this nutrient, move to next
     
     return nutrition
 
 def extract_rating(text: str) -> tuple:
     """Extract health rating score and max score"""
-    rating_match = re.search(r'(\d+)\s*(?:/|out of)\s*(\d+)', text)
-    if rating_match:
-        return int(rating_match.group(1)), int(rating_match.group(2))
+    # Look for patterns like "7/10", "7 out of 10", "Rating: 7/10"
+    patterns = [
+        r'rating[:\s]+(\d+)\s*(?:/|out\s*of)\s*(\d+)',
+        r'(\d+)\s*(?:/|out\s*of)\s*(\d+)\s*(?:for\s+health|health\s+rating)',
+        r'(?:health\s+)?(?:rating[:\s]+)?(\d+)\s*(?:/|out\s*of)\s*(\d+)',
+    ]
+    
+    text_lower = text.lower()
+    for pattern in patterns:
+        match = re.search(pattern, text_lower)
+        if match:
+            try:
+                score = int(match.group(1))
+                max_score = int(match.group(2))
+                if 0 <= score <= max_score and max_score > 0:
+                    return score, max_score
+            except (ValueError, IndexError):
+                continue
+    
     return None, None
 
 def display_meal_analysis(analysis_text: str):
