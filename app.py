@@ -614,13 +614,13 @@ with st.sidebar:
     
     st.session_state.profile["health_conditions"] = st.multiselect(
         "Health Conditions",
-        ["Diabetes", "Hypertension", "Heart Disease", "Celiac", "Lactose Intolerance", "None"],
+        ["Diabetes", "Hypertension", "Heart Disease", "Celiac", "Lactose Intolerance"],
         default=st.session_state.profile["health_conditions"]
     )
     
     st.session_state.profile["dietary_preferences"] = st.multiselect(
         "Dietary Preferences",
-        ["Vegetarian", "Vegan", "Gluten-Free", "Low-Carb", "Keto", "None"],
+        ["Vegetarian", "Vegan", "Gluten-Free", "Low-Carb", "Keto"],
         default=st.session_state.profile["dietary_preferences"]
     )
     
