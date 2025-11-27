@@ -7,6 +7,7 @@ import json
 import base64
 from typing import Dict, Optional
 from openai import AzureOpenAI
+import httpx
 
 
 class NutritionAnalyzer:
@@ -34,10 +35,17 @@ class NutritionAnalyzer:
             self.endpoint += "/"
         
         try:
+            # Create a custom httpx client with proper configuration
+            http_client = httpx.Client(
+                timeout=30.0,
+                limits=httpx.Limits(max_keepalive_connections=5, max_connections=10)
+            )
+            
             self.client = AzureOpenAI(
                 api_key=api_key,
                 api_version=self.api_version,
-                azure_endpoint=self.endpoint
+                azure_endpoint=self.endpoint,
+                http_client=http_client
             )
         except Exception as e:
             error_msg = str(e)
