@@ -100,37 +100,51 @@ def extract_nutrition_numbers(text: str) -> dict:
     # More flexible pattern matching for nutrition data
     patterns = {
         'calories': [
+            r'\*\*calories?\*\*:?\s*(\d+)',
+            r'calories?:?\s*(\d+)(?:\s*-\s*|\s*to\s*)(\d+)',
             r'(\d+)(?:\s*-\s*|\s*to\s*)(\d+)\s*calories',
             r'approximately?\s*(\d+)\s*calories',
             r'about\s*(\d+)\s*kcal',
-            r'(\d+)\s*cal(?:ories)?'
+            r'(\d+)\s*(?:calories?|kcal|cal(?:ories)?)'
         ],
         'protein': [
+            r'\*\*protein\*\*:?\s*(\d+)\s*g',
+            r'protein:?\s*(\d+)(?:\s*-\s*|\s*to\s*)(\d+)\s*g',
             r'(\d+)(?:\s*-\s*|\s*to\s*)(\d+)\s*g(?:ram)?s?(?:\s*of)?\s*protein',
             r'(\d+)\s*(?:gram)?s?(?:\s*of)?\s*protein',
             r'protein:?\s*(\d+)\s*g'
         ],
         'carbs': [
+            r'\*\*carbs?(?:ohydrate)?s?\*\*:?\s*(\d+)\s*g',
+            r'carbs?(?:ohydrate)?s?:?\s*(\d+)(?:\s*-\s*|\s*to\s*)(\d+)\s*g',
             r'(\d+)(?:\s*-\s*|\s*to\s*)(\d+)\s*g(?:ram)?s?(?:\s*of)?\s*carbs?(?:ohydrate)?s?',
             r'(\d+)\s*g(?:ram)?s?(?:\s*of)?\s*carbs?(?:ohydrate)?s?',
             r'carbs?(?:ohydrate)?s?:?\s*(\d+)\s*g'
         ],
         'fat': [
+            r'\*\*fat\*\*:?\s*(\d+)\s*g',
+            r'fat:?\s*(\d+)(?:\s*-\s*|\s*to\s*)(\d+)\s*g',
             r'(\d+)(?:\s*-\s*|\s*to\s*)(\d+)\s*g(?:ram)?s?(?:\s*of)?\s*fat',
-            r'(\d+)\s*g(?:ram)?s?(?:\s*of)?\s*fat',
+            r'(\d+)\s*g(?:gram)?s?(?:\s*of)?\s*fat',
             r'fat:?\s*(\d+)\s*g'
         ],
         'fiber': [
+            r'\*\*fiber\*\*:?\s*(\d+)\s*g',
+            r'fiber:?\s*(\d+)(?:\s*-\s*|\s*to\s*)(\d+)\s*g',
             r'(\d+)(?:\s*-\s*|\s*to\s*)(\d+)\s*g(?:ram)?s?(?:\s*of)?\s*fiber',
             r'(\d+)\s*g(?:ram)?s?(?:\s*of)?\s*fiber',
             r'fiber:?\s*(\d+)\s*g'
         ],
         'sodium': [
+            r'\*\*sodium\*\*:?\s*(\d+)\s*mg',
+            r'sodium:?\s*(\d+)(?:\s*-\s*|\s*to\s*)(\d+)\s*mg',
             r'(\d+)(?:\s*-\s*|\s*to\s*)(\d+)\s*mg(?:\s*of)?\s*sodium',
             r'(\d+)\s*mg(?:\s*of)?\s*sodium',
             r'sodium:?\s*(\d+)\s*mg'
         ],
         'sugar': [
+            r'\*\*sugar\*\*:?\s*(\d+)\s*g',
+            r'sugar:?\s*(\d+)(?:\s*-\s*|\s*to\s*)(\d+)\s*g',
             r'(\d+)(?:\s*-\s*|\s*to\s*)(\d+)\s*g(?:ram)?s?(?:\s*of)?\s*sugar',
             r'(\d+)\s*g(?:ram)?s?(?:\s*of)?\s*sugar',
             r'sugar:?\s*(\d+)\s*g'
@@ -170,6 +184,7 @@ def extract_rating(text: str) -> tuple:
     """Extract health rating score and max score"""
     # Look for patterns like "Health Rating: 7/10", "7/10", "7 out of 10"
     patterns = [
+        r'\*\*health\s+rating\*\*:?\s*(\d+)\s*(?:/|out\s*of)\s*(\d+)',
         r'health\s+rating\s*:\s*(\d+)\s*(?:/|out\s*of)\s*(\d+)',
         r'rating\s*:\s*(\d+)\s*(?:/|out\s*of)\s*(\d+)',
         r'(\d+)\s*(?:/|out\s*of)\s*(\d+)\s*(?:for\s+health|health\s+rating)',
@@ -422,8 +437,12 @@ def display_meal_analysis(analysis_text: str):
     st.markdown('<div class="section-header">💡 Personalized Advice</div>', unsafe_allow_html=True)
     
     if advice_list:
-        # Combine all advice into a single paragraph
+        # Combine all advice into a single paragraph and strip markdown
         combined_advice = " ".join(advice_list)
+        # Remove markdown formatting (**, *, etc.)
+        combined_advice = re.sub(r'\*\*(.+?)\*\*', r'\1', combined_advice)  # Remove bold
+        combined_advice = re.sub(r'\*(.+?)\*', r'\1', combined_advice)  # Remove italics
+        combined_advice = re.sub(r'_(.+?)_', r'\1', combined_advice)  # Remove underscores
         st.markdown(f'<div class="advice-item">✨ {combined_advice}</div>', unsafe_allow_html=True)
     else:
         # Fallback: show informational message
@@ -681,37 +700,40 @@ with tab1:
                 st.image(image, use_container_width=True)
             
             with col2:
-                st.markdown("#### 🔍 Analyzing...")
+                st.markdown("#### 📊 Ready to Analyze")
+                st.write("Click the button below to analyze your meal")
             
-            with st.spinner("🔍 Analyzing your meal photo..."):
-                analyzer = NutritionAnalyzer(
-                    api_key,
-                    endpoint,
-                    deployment,
-                    api_version
-                )
-                
-                # Convert image to bytes
-                image_bytes = io.BytesIO()
-                image.save(image_bytes, format="PNG")
-                image_bytes.seek(0)
-                image_base64 = io.BytesIO(uploaded_file.getvalue()).read()
-                
-                try:
-                    analysis = analyzer.detect_food_from_image(
-                        image_base64,
-                        st.session_state.profile
+            if st.button("🔍 Analyze Meal", use_container_width=True, type="primary"):
+                with st.spinner("🔍 Analyzing your meal photo..."):
+                    analyzer = NutritionAnalyzer(
+                        api_key,
+                        endpoint,
+                        deployment,
+                        api_version
                     )
                     
-                    st.session_state.current_analysis = analysis
+                    # Convert image to bytes
+                    image_bytes = io.BytesIO()
+                    image.save(image_bytes, format="PNG")
+                    image_bytes.seek(0)
+                    image_base64 = io.BytesIO(uploaded_file.getvalue()).read()
                     
-                    # Show success notification
-                    st.success("✅ Analysis complete!", icon="✅")
-                    
-                    display_meal_analysis(analysis)
+                    try:
+                        analysis = analyzer.detect_food_from_image(
+                            image_base64,
+                            st.session_state.profile
+                        )
                         
-                except Exception as e:
-                    st.error(f"❌ Error analyzing image: {str(e)}")
+                        st.session_state.current_analysis = analysis
+                        
+                        # Show success notification
+                        st.success("✅ Analysis complete!", icon="✅")
+                        
+                        display_meal_analysis(analysis)
+                            
+                    except Exception as e:
+                        st.error(f"❌ Error analyzing image: {str(e)}")
+                        st.info("Make sure your Azure OpenAI API key is correct in .env file")
                     st.info("Make sure your Azure OpenAI API key is correct in .env file")
     
     else:  # Describe Meal
