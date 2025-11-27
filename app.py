@@ -10,19 +10,20 @@ from PIL import Image
 import io
 import re
 from nutrition_analyzer import NutritionAnalyzer
-from config import APP_NAME, OPENAI_API_KEY, AZURE_OPENAI_ENDPOINT, AZURE_OPENAI_DEPLOYMENT, get_config_from_secrets
+from config import APP_NAME, OPENAI_API_KEY, AZURE_OPENAI_ENDPOINT, AZURE_OPENAI_DEPLOYMENT, AZURE_OPENAI_API_VERSION, get_config_from_secrets
 
 # ===========================
 # API Key Validation & Configuration
 # ===========================
 
 # Try to get secrets from Streamlit Cloud first
-secrets_api_key, secrets_endpoint, secrets_deployment = get_config_from_secrets()
+secrets_api_key, secrets_endpoint, secrets_deployment, secrets_api_version = get_config_from_secrets()
 
 # Use secrets if available, otherwise use environment variables
 api_key = secrets_api_key or OPENAI_API_KEY
 endpoint = secrets_endpoint or AZURE_OPENAI_ENDPOINT
 deployment = secrets_deployment or AZURE_OPENAI_DEPLOYMENT
+api_version = secrets_api_version or AZURE_OPENAI_API_VERSION
 
 if not api_key:
     st.error("""
@@ -622,7 +623,8 @@ with tab1:
                 analyzer = NutritionAnalyzer(
                     api_key,
                     endpoint,
-                    deployment
+                    deployment,
+                    api_version
                 )
                 
                 # Convert image to bytes
@@ -663,7 +665,8 @@ with tab1:
                     analyzer = NutritionAnalyzer(
                         api_key,
                         endpoint,
-                        deployment
+                        deployment,
+                        api_version
                     )
                     
                     try:
@@ -710,7 +713,8 @@ with tab2:
             analyzer = NutritionAnalyzer(
                 api_key,
                 endpoint,
-                deployment
+                deployment,
+                api_version
             )
             
             try:

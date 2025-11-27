@@ -12,13 +12,14 @@ from openai import AzureOpenAI
 class NutritionAnalyzer:
     """Analyzes food using Azure OpenAI GPT-4 Vision and GPT-4 (HKUST endpoint)"""
     
-    def __init__(self, api_key: str, endpoint: str = None, deployment: str = None):
+    def __init__(self, api_key: str, endpoint: str = None, deployment: str = None, api_version: str = None):
         """Initialize with Azure OpenAI API key and endpoint
         
         Args:
             api_key: Azure OpenAI API key
             endpoint: Azure OpenAI endpoint (defaults to HKUST)
             deployment: Deployment name (defaults to gpt-4o)
+            api_version: API version (defaults to 2024-05-01-preview)
         """
         if not api_key:
             raise ValueError("Azure OpenAI API key is required. Please set AZURE_OPENAI_API_KEY in your .env file")
@@ -26,15 +27,16 @@ class NutritionAnalyzer:
         self.api_key = api_key
         self.endpoint = endpoint or "https://hkust.azure-api.net/"
         self.deployment = deployment or "gpt-4o"
+        self.api_version = api_version or "2024-05-01-preview"
         
         try:
             self.client = AzureOpenAI(
                 api_key=api_key,
-                api_version="2024-05-01-preview",
+                api_version=self.api_version,
                 azure_endpoint=self.endpoint
             )
         except Exception as e:
-            raise RuntimeError(f"Failed to initialize Azure OpenAI client: {str(e)}. Please verify your API key and endpoint are correct.")
+            raise RuntimeError(f"Failed to initialize Azure OpenAI client: {str(e)}. Please verify your API key, endpoint, and API version are correct.")
     
     def detect_food_from_image(self, image_data: bytes, profile: Dict) -> str:
         """

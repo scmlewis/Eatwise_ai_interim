@@ -23,6 +23,7 @@ APP_VERSION = "1.0.0-interim"
 OPENAI_API_KEY = os.getenv("AZURE_OPENAI_API_KEY")
 AZURE_OPENAI_ENDPOINT = os.getenv("AZURE_OPENAI_ENDPOINT", "https://hkust.azure-api.net/")
 AZURE_OPENAI_DEPLOYMENT = os.getenv("AZURE_OPENAI_DEPLOYMENT", "gpt-4o")
+AZURE_OPENAI_API_VERSION = os.getenv("AZURE_OPENAI_API_VERSION", "2024-05-01-preview")
 
 
 def get_config_from_secrets():
@@ -32,7 +33,8 @@ def get_config_from_secrets():
         api_key = st.secrets.get("AZURE_OPENAI_API_KEY")
         endpoint = st.secrets.get("AZURE_OPENAI_ENDPOINT", "https://hkust.azure-api.net/")
         deployment = st.secrets.get("AZURE_OPENAI_DEPLOYMENT", "gpt-4o")
+        api_version = st.secrets.get("AZURE_OPENAI_API_VERSION", "2024-05-01-preview")
         
-        return api_key, endpoint, deployment
+        return api_key, endpoint, deployment, api_version
     except:
-        return None, None, None
+        return None, None, None, None
