@@ -77,6 +77,7 @@ def init_session_state():
     if "profile" not in st.session_state:
         st.session_state.profile = {
             "age_group": "Not selected",
+            "gender": "Not selected",
             "health_conditions": [],
             "dietary_preferences": [],
             "health_goal": "General wellness"
@@ -98,11 +99,12 @@ init_session_state()
 # ===========================
 
 def get_nutrition_targets(profile: dict) -> dict:
-    """Calculate personalized nutrition targets based on profile"""
+    """Calculate personalized nutrition targets based on profile (gender + health goal)"""
     health_goal = profile.get("health_goal", "General wellness")
+    gender = profile.get("gender", "Not selected")
     
-    # Default targets based on health goal
-    targets = {
+    # Base targets by health goal
+    base_targets = {
         "General wellness": {"calories": 2000, "protein": 50, "carbs": 225, "fat": 65, "fiber": 25, "sodium": 2300},
         "Weight loss": {"calories": 1500, "protein": 120, "carbs": 150, "fat": 50, "fiber": 30, "sodium": 2000},
         "Muscle gain": {"calories": 2500, "protein": 150, "carbs": 300, "fat": 85, "fiber": 25, "sodium": 2300},
@@ -110,7 +112,21 @@ def get_nutrition_targets(profile: dict) -> dict:
         "Heart health": {"calories": 1800, "protein": 60, "carbs": 200, "fat": 50, "fiber": 35, "sodium": 1500},
     }
     
-    return targets.get(health_goal, targets["General wellness"])
+    targets = base_targets.get(health_goal, base_targets["General wellness"])
+    
+    # Adjust for gender (standard nutritional guidelines)
+    if gender == "Female":
+        # Women typically need 10-15% fewer calories
+        targets["calories"] = int(targets["calories"] * 0.85)
+        # Protein adjusted proportionally (0.8g per lb bodyweight for women)
+        targets["protein"] = int(targets["protein"] * 0.85)
+    elif gender == "Male":
+        # Men typically need 10-15% more calories
+        targets["calories"] = int(targets["calories"] * 1.1)
+        # Protein adjusted proportionally
+        targets["protein"] = int(targets["protein"] * 1.1)
+    
+    return targets
 
 # ===========================
 # Analysis Display Helper with Advanced Styling
@@ -720,6 +736,13 @@ with st.sidebar:
         ["Not selected", "18-25", "26-35", "36-45", "46-55", "56+"],
         index=0 if st.session_state.profile["age_group"] == "Not selected" else 
               ["Not selected", "18-25", "26-35", "36-45", "46-55", "56+"].index(st.session_state.profile["age_group"])
+    )
+    
+    st.session_state.profile["gender"] = st.selectbox(
+        "Gender ✓ **(Required)**",
+        ["Not selected", "Male", "Female", "Other"],
+        index=0 if st.session_state.profile["gender"] == "Not selected" else 
+              ["Not selected", "Male", "Female", "Other"].index(st.session_state.profile["gender"])
     )
     
     st.session_state.profile["health_goal"] = st.selectbox(
