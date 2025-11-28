@@ -481,9 +481,6 @@ def display_meal_analysis(analysis_text: str):
     st.markdown('<div class="section-header">📊 Nutrition Breakdown</div>', unsafe_allow_html=True)
     
     if nutrition_data:
-        # Create a grid for nutrition data
-        nutrition_cols = st.columns(len(nutrition_data) if nutrition_data else 1)
-        
         nutrition_icons = {
             'calories': '🔥',
             'protein': '💪',
@@ -494,21 +491,24 @@ def display_meal_analysis(analysis_text: str):
             'sugar': '🍬'
         }
         
-        col_idx = 0
-        for key, value in nutrition_data.items():
-            if col_idx >= len(nutrition_cols):
-                break
+        # Create a responsive grid layout (3 columns)
+        nutrition_items = list(nutrition_data.items())
+        cols_per_row = 3
+        
+        for row_idx in range(0, len(nutrition_items), cols_per_row):
+            cols = st.columns(cols_per_row, gap="small")
+            row_items = nutrition_items[row_idx:row_idx + cols_per_row]
             
-            icon = nutrition_icons.get(key, '📌')
-            with nutrition_cols[col_idx]:
-                st.markdown(
-                    f'''<div class="nutrition-card">
-                        <div style="font-size: 1.3em; margin-bottom: 0.5em;">{icon} {key.capitalize()}</div>
-                        <div class="nutrition-card-value">{value}</div>
-                    </div>''',
-                    unsafe_allow_html=True
-                )
-            col_idx += 1
+            for col_idx, (key, value) in enumerate(row_items):
+                icon = nutrition_icons.get(key, '📌')
+                with cols[col_idx]:
+                    st.markdown(
+                        f'''<div class="nutrition-card">
+                            <div style="font-size: 1.3em; margin-bottom: 0.5em;">{icon} {key.capitalize()}</div>
+                            <div class="nutrition-card-value">{value}</div>
+                        </div>''',
+                        unsafe_allow_html=True
+                    )
     else:
         st.info("📊 Nutritional details being extracted...")
     
