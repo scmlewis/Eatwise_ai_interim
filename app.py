@@ -1175,13 +1175,15 @@ if st.session_state.analysis_history:
             st.markdown(f"**Health Rating:** {record['rating']}")
             st.markdown(f"**Full Analysis:**")
             st.markdown(record['analysis'])
-    
-    # Back-to-top button
-    st.divider()
-    if st.button("⬆️ Back to Top", use_container_width=True, type="secondary"):
-        st.scroll_to_anchor("app-top")
 else:
     st.info("🍽️ No analysis history yet. Start by analyzing a meal to see your past records here!")
+
+# Always show back-to-top button
+st.divider()
+col1, col2, col3 = st.columns([1, 2, 1])
+with col2:
+    if st.button("⬆️ Back to Top", use_container_width=True, type="secondary"):
+        st.scroll_to_anchor("app-top")
 
 # ===========================
 # Footer
