@@ -71,6 +71,47 @@ st.set_page_config(
 # Add anchor for back-to-top functionality
 st.markdown('<a id="app-top"></a>', unsafe_allow_html=True)
 
+# Add floating back-to-top button (experimental)
+st.markdown("""
+<style>
+.floating-back-to-top {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    z-index: 999;
+}
+
+.floating-back-to-top a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 50%;
+    text-decoration: none;
+    font-size: 1.5em;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    transition: all 0.3s ease;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.floating-back-to-top a:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6);
+}
+
+.floating-back-to-top a:active {
+    transform: translateY(-2px);
+}
+</style>
+
+<div class="floating-back-to-top">
+    <a href="#app-top" title="Back to top">⬆️</a>
+</div>
+""", unsafe_allow_html=True)
+
 # ===========================
 # Session State Initialization
 # ===========================
