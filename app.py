@@ -96,6 +96,25 @@ def init_session_state():
 init_session_state()
 
 # ===========================
+# Nutrition Targets Helper
+# ===========================
+
+def get_nutrition_targets(profile: dict) -> dict:
+    """Calculate personalized nutrition targets based on profile"""
+    health_goal = profile.get("health_goal", "General wellness")
+    
+    # Default targets based on health goal
+    targets = {
+        "General wellness": {"calories": 2000, "protein": 50, "carbs": 225, "fat": 65, "fiber": 25, "sodium": 2300},
+        "Weight loss": {"calories": 1500, "protein": 120, "carbs": 150, "fat": 50, "fiber": 30, "sodium": 2000},
+        "Muscle gain": {"calories": 2500, "protein": 150, "carbs": 300, "fat": 85, "fiber": 25, "sodium": 2300},
+        "Energy boost": {"calories": 2200, "protein": 70, "carbs": 275, "fat": 70, "fiber": 28, "sodium": 2300},
+        "Heart health": {"calories": 1800, "protein": 60, "carbs": 200, "fat": 50, "fiber": 35, "sodium": 1500},
+    }
+    
+    return targets.get(health_goal, targets["General wellness"])
+
+# ===========================
 # Analysis Display Helper with Advanced Styling
 # ===========================
 
@@ -629,30 +648,31 @@ with st.sidebar:
     """, unsafe_allow_html=True)
     
     st.markdown("## 👤 Your Profile")
+    st.info("**Required fields** (marked with ✓) are needed for personalized nutrition targets and coaching tips. Others are optional.")
     
     st.session_state.profile["age_group"] = st.selectbox(
-        "Age Group",
+        "Age Group ✓ **(Required)**",
         ["Not selected", "18-25", "26-35", "36-45", "46-55", "56+"],
         index=0 if st.session_state.profile["age_group"] == "Not selected" else 
               ["Not selected", "18-25", "26-35", "36-45", "46-55", "56+"].index(st.session_state.profile["age_group"])
     )
     
+    st.session_state.profile["health_goal"] = st.selectbox(
+        "Health Goal ✓ **(Required)**",
+        ["General wellness", "Weight loss", "Muscle gain", "Energy boost", "Heart health"],
+        index=["General wellness", "Weight loss", "Muscle gain", "Energy boost", "Heart health"].index(st.session_state.profile["health_goal"])
+    )
+    
     st.session_state.profile["health_conditions"] = st.multiselect(
-        "Health Conditions",
+        "Health Conditions (Optional)",
         ["Diabetes", "Hypertension", "Heart Disease", "Celiac", "Lactose Intolerance"],
         default=st.session_state.profile["health_conditions"]
     )
     
     st.session_state.profile["dietary_preferences"] = st.multiselect(
-        "Dietary Preferences",
+        "Dietary Preferences (Optional)",
         ["Vegetarian", "Vegan", "Gluten-Free", "Low-Carb", "Keto"],
         default=st.session_state.profile["dietary_preferences"]
-    )
-    
-    st.session_state.profile["health_goal"] = st.selectbox(
-        "Health Goal",
-        ["General wellness", "Weight loss", "Muscle gain", "Better energy", "Disease management"],
-        index=["General wellness", "Weight loss", "Muscle gain", "Better energy", "Disease management"].index(st.session_state.profile["health_goal"])
     )
 
 # ===========================
@@ -670,7 +690,7 @@ st.markdown('''
 # Main Content - Tabs
 # ===========================
 
-tab1, tab2 = st.tabs(["🍽️ Meal Analysis", "💡 Coaching Tips"])
+tab1, tab2, tab3 = st.tabs(["🍽️ Meal Analysis", "🎯 Nutrition Targets", "💡 Coaching Tips"])
 
 # ===========================
 # Tab 1: Meal Analysis (Combined Food Detection + Nutrition)
@@ -850,47 +870,140 @@ with tab1:
 # ===========================
 
 with tab2:
+    st.markdown("## 🎯 Your Nutrition Targets")
+    st.markdown("Personalized daily nutrition goals based on your profile.")
+    
+    # Check if required fields are filled
+    if st.session_state.profile["age_group"] == "Not selected":
+        st.warning("⚠️ **Age Group is required** to calculate your nutrition targets. Please select your age group in the sidebar profile section.")
+        st.info("👉 Look for the '👤 Your Profile' section in the left sidebar")
+    else:
+        # Get targets based on profile
+        targets = get_nutrition_targets(st.session_state.profile)
+        
+        st.success(f"✅ Targets calculated for: **{st.session_state.profile['age_group']}** | Goal: **{st.session_state.profile['health_goal']}**")
+        
+        # Display targets in a nice grid
+        col1, col2, col3 = st.columns(3)
+        
+        with col1:
+            st.markdown(f"""
+            <div class="nutrition-card">
+                <div style="font-size: 1.3em; margin-bottom: 0.5em;">🔥 Calories</div>
+                <div class="nutrition-card-value">{targets['calories']}</div>
+                <div style="font-size: 0.8em; color: rgba(255,255,255,0.8); margin-top: 0.5em;">kcal/day</div>
+            </div>
+            """, unsafe_allow_html=True)
+        
+        with col2:
+            st.markdown(f"""
+            <div class="nutrition-card">
+                <div style="font-size: 1.3em; margin-bottom: 0.5em;">💪 Protein</div>
+                <div class="nutrition-card-value">{targets['protein']}</div>
+                <div style="font-size: 0.8em; color: rgba(255,255,255,0.8); margin-top: 0.5em;">g/day</div>
+            </div>
+            """, unsafe_allow_html=True)
+        
+        with col3:
+            st.markdown(f"""
+            <div class="nutrition-card">
+                <div style="font-size: 1.3em; margin-bottom: 0.5em;">🌾 Carbs</div>
+                <div class="nutrition-card-value">{targets['carbs']}</div>
+                <div style="font-size: 0.8em; color: rgba(255,255,255,0.8); margin-top: 0.5em;">g/day</div>
+            </div>
+            """, unsafe_allow_html=True)
+        
+        col4, col5, col6 = st.columns(3)
+        
+        with col4:
+            st.markdown(f"""
+            <div class="nutrition-card">
+                <div style="font-size: 1.3em; margin-bottom: 0.5em;">🥑 Fat</div>
+                <div class="nutrition-card-value">{targets['fat']}</div>
+                <div style="font-size: 0.8em; color: rgba(255,255,255,0.8); margin-top: 0.5em;">g/day</div>
+            </div>
+            """, unsafe_allow_html=True)
+        
+        with col5:
+            st.markdown(f"""
+            <div class="nutrition-card">
+                <div style="font-size: 1.3em; margin-bottom: 0.5em;">🥗 Fiber</div>
+                <div class="nutrition-card-value">{targets['fiber']}</div>
+                <div style="font-size: 0.8em; color: rgba(255,255,255,0.8); margin-top: 0.5em;">g/day</div>
+            </div>
+            """, unsafe_allow_html=True)
+        
+        with col6:
+            st.markdown(f"""
+            <div class="nutrition-card">
+                <div style="font-size: 1.3em; margin-bottom: 0.5em;">🧂 Sodium</div>
+                <div class="nutrition-card-value">{targets['sodium']}</div>
+                <div style="font-size: 0.8em; color: rgba(255,255,255,0.8); margin-top: 0.5em;">mg/day</div>
+            </div>
+            """, unsafe_allow_html=True)
+        
+        st.divider()
+        st.markdown("### 💡 Tips to Meet Your Targets")
+        st.markdown(f"""
+        - **Calories**: {targets['calories']} kcal daily based on your **{st.session_state.profile['health_goal']}** goal
+        - **Protein**: {targets['protein']}g helps with muscle and recovery
+        - **Carbs**: {targets['carbs']}g provides energy throughout your day
+        - **Fat**: {targets['fat']}g supports hormone and brain health
+        - **Fiber**: {targets['fiber']}g aids digestion and satiety
+        - **Sodium**: Keep under {targets['sodium']}mg for heart health
+        """)
+        
+        if st.session_state.profile["health_conditions"]:
+            st.markdown(f"**Your Health Conditions:** {', '.join(st.session_state.profile['health_conditions'])}")
+            st.info("💡 Remember to consider your health conditions when planning meals. The coaching section has tips for managing meals with your conditions.")
+
+with tab3:
     st.markdown("## 💡 Personalized Nutrition Coaching")
     st.markdown("Get personalized tips and recommendations based on your profile and goals.")
     
-    coaching_topic = st.selectbox(
-        "What would you like coaching on?",
-        [
-            "Daily nutrition tips",
-            "How to improve my diet for my health goal",
-            "Healthy meal ideas based on my preferences",
-            "Energy and metabolism optimization",
-            "Managing meals with my health conditions",
-            "Hydration and supplements advice"
-        ]
-    )
-    
-    if st.button("💡 Get Coaching Tips", use_container_width=True, type="primary"):
-        with st.spinner("✨ Generating personalized tips..."):
-            analyzer = NutritionAnalyzer(
-                api_key,
-                endpoint,
-                deployment,
-                api_version
-            )
-            
-            try:
-                coaching = analyzer.get_personalized_coaching(
-                    coaching_topic,
-                    st.session_state.profile
+    # Check if required fields are filled
+    if st.session_state.profile["age_group"] == "Not selected":
+        st.warning("⚠️ **Age Group is required** to get personalized coaching tips. Please select your age group in the sidebar profile section.")
+        st.info("👉 Look for the '👤 Your Profile' section in the left sidebar marked with ✓ **(Required)**")
+    else:
+        coaching_topic = st.selectbox(
+            "What would you like coaching on?",
+            [
+                "Daily nutrition tips",
+                "How to improve my diet for my health goal",
+                "Healthy meal ideas based on my preferences",
+                "Energy and metabolism optimization",
+                "Managing meals with my health conditions",
+                "Hydration and supplements advice"
+            ]
+        )
+        
+        if st.button("💡 Get Coaching Tips", use_container_width=True, type="primary"):
+            with st.spinner("✨ Generating personalized tips..."):
+                analyzer = NutritionAnalyzer(
+                    api_key,
+                    endpoint,
+                    deployment,
+                    api_version
                 )
                 
-                st.session_state.current_analysis = coaching
-                
-                # Show success notification
-                st.success("✅ Coaching tips ready!", icon="✅")
-                
-                st.markdown("### Your Personalized Tips")
-                st.markdown(f'<div class="advice-item">💡 {coaching}</div>', unsafe_allow_html=True)
-                
-            except Exception as e:
-                st.error(f"❌ Error generating coaching: {str(e)}")
-                st.info("Make sure your Azure OpenAI API key is correct in .env file")
+                try:
+                    coaching = analyzer.get_personalized_coaching(
+                        coaching_topic,
+                        st.session_state.profile
+                    )
+                    
+                    st.session_state.current_analysis = coaching
+                    
+                    # Show success notification
+                    st.success("✅ Coaching tips ready!", icon="✅")
+                    
+                    st.markdown("### Your Personalized Tips")
+                    st.markdown(f'<div class="advice-item">💡 {coaching}</div>', unsafe_allow_html=True)
+                    
+                except Exception as e:
+                    st.error(f"❌ Error generating coaching: {str(e)}")
+                    st.info("Make sure your Azure OpenAI API key is correct in .env file")
 
 # ===========================
 # Analysis History Section
