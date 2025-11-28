@@ -76,8 +76,8 @@ st.markdown("""
 <style>
 .floating-back-to-top {
     position: fixed;
-    bottom: 30px;
-    right: 30px;
+    bottom: 100px;
+    right: 25px;
     z-index: 999;
 }
 
@@ -85,30 +85,33 @@ st.markdown("""
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 50px;
-    height: 50px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, #14b8a6 0%, #06b6d4 100%);
     color: white;
     border-radius: 50%;
     text-decoration: none;
-    font-size: 1.5em;
-    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    font-size: 1.8em;
+    box-shadow: 0 6px 20px rgba(20, 184, 166, 0.5);
     transition: all 0.3s ease;
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    line-height: 1;
+    font-weight: bold;
 }
 
 .floating-back-to-top a:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6);
+    transform: translateY(-8px) scale(1.1);
+    box-shadow: 0 10px 30px rgba(20, 184, 166, 0.7);
+    border-color: rgba(255, 255, 255, 0.5);
 }
 
 .floating-back-to-top a:active {
-    transform: translateY(-2px);
+    transform: translateY(-4px) scale(1.05);
 }
 </style>
 
 <div class="floating-back-to-top">
-    <a href="#app-top" title="Back to top">⬆️</a>
+    <a href="#app-top" title="Back to top">↑</a>
 </div>
 """, unsafe_allow_html=True)
 
