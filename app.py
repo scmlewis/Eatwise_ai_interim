@@ -726,7 +726,15 @@ with tab1:
                 st.markdown("#### 📊 Ready to Analyze")
                 st.write("Click the button below to analyze your meal")
             
-            if st.button("🔍 Analyze Meal", use_container_width=True, type="primary"):
+            col_analyze, col_clear = st.columns(2, gap="small")
+            
+            with col_analyze:
+                analyze_clicked = st.button("🔍 Analyze Meal", use_container_width=True, type="primary")
+            
+            with col_clear:
+                clear_clicked = st.button("🗑️ Clear", use_container_width=True)
+            
+            if analyze_clicked:
                 with st.spinner("🔍 Analyzing your meal photo..."):
                     analyzer = NutritionAnalyzer(
                         api_key,
@@ -782,7 +790,15 @@ with tab1:
             label_visibility="collapsed"
         )
         
-        if st.button("🔍 Analyze Meal", use_container_width=True, type="primary"):
+        col_analyze, col_clear = st.columns(2, gap="small")
+        
+        with col_analyze:
+            analyze_clicked = st.button("🔍 Analyze Meal", use_container_width=True, type="primary", key="btn_analyze_text")
+        
+        with col_clear:
+            clear_clicked = st.button("🗑️ Clear", use_container_width=True, key="btn_clear_text")
+        
+        if analyze_clicked:
             if meal_description.strip():
                 with st.spinner("📊 Analyzing your meal..."):
                     analyzer = NutritionAnalyzer(
@@ -821,6 +837,13 @@ with tab1:
                     except Exception as e:
                         st.error(f"❌ Error analyzing meal: {str(e)}")
                         st.info("Make sure your Azure OpenAI API key is correct in .env file")
+            else:
+                st.warning("Please describe your meal first!")
+        
+        if clear_clicked:
+            # Clear the meal description
+            st.session_state.meal_description = ""
+            st.rerun()
 
 # ===========================
 # Tab 2: Personalized Coaching
