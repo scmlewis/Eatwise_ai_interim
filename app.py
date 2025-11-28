@@ -82,6 +82,10 @@ def init_session_state():
             "dietary_preferences": [],
             "health_goal": "General wellness"
         }
+    else:
+        # Ensure gender field exists for backward compatibility
+        if "gender" not in st.session_state.profile:
+            st.session_state.profile["gender"] = "Not selected"
     
     if "current_analysis" not in st.session_state:
         st.session_state.current_analysis = None
@@ -741,8 +745,8 @@ with st.sidebar:
     st.session_state.profile["gender"] = st.selectbox(
         "Gender ✓ **(Required)**",
         ["Not selected", "Male", "Female", "Other"],
-        index=0 if st.session_state.profile["gender"] == "Not selected" else 
-              ["Not selected", "Male", "Female", "Other"].index(st.session_state.profile["gender"])
+        index=0 if st.session_state.profile.get("gender", "Not selected") == "Not selected" else 
+              ["Not selected", "Male", "Female", "Other"].index(st.session_state.profile.get("gender", "Not selected"))
     )
     
     st.session_state.profile["health_goal"] = st.selectbox(
