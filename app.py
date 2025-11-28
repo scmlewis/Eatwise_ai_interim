@@ -68,6 +68,9 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
+# Add anchor for back-to-top functionality
+st.markdown('<a id="app-top"></a>', unsafe_allow_html=True)
+
 # ===========================
 # Session State Initialization
 # ===========================
@@ -1172,6 +1175,11 @@ if st.session_state.analysis_history:
             st.markdown(f"**Health Rating:** {record['rating']}")
             st.markdown(f"**Full Analysis:**")
             st.markdown(record['analysis'])
+    
+    # Back-to-top button
+    st.divider()
+    if st.button("⬆️ Back to Top", use_container_width=True, type="secondary"):
+        st.scroll_to_anchor("app-top")
 else:
     st.info("🍽️ No analysis history yet. Start by analyzing a meal to see your past records here!")
 
