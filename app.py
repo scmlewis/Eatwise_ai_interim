@@ -1182,8 +1182,26 @@ else:
 st.divider()
 col1, col2, col3 = st.columns([1, 2, 1])
 with col2:
-    if st.button("⬆️ Back to Top", use_container_width=True, type="secondary"):
-        st.scroll_to_anchor("app-top")
+    st.markdown("""
+    <a href="#app-top">
+        <button style="
+            width: 100%;
+            padding: 12px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        " onmouseover="this.style.transform='scale(1.02)'; this.style.boxShadow='0 6px 20px rgba(102, 126, 234, 0.6)';"
+           onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 4px 15px rgba(102, 126, 234, 0.4)';">
+            ⬆️ Back to Top
+        </button>
+    </a>
+    """, unsafe_allow_html=True)
 
 # ===========================
 # Footer
