@@ -973,7 +973,7 @@ with tab2:
         # Get targets based on profile
         targets = get_nutrition_targets(st.session_state.profile)
         
-        st.success(f"✅ Targets calculated for: **{st.session_state.profile['age_group']}** | Goal: **{st.session_state.profile['health_goal']}**")
+        st.success(f"✅ Targets calculated for: **{st.session_state.profile['age_group']}** | Gender: **{st.session_state.profile.get('gender', 'Not selected')}** | Goal: **{st.session_state.profile['health_goal']}**")
         
         # Display targets in a nice grid
         col1, col2, col3 = st.columns(3)
@@ -1044,6 +1044,67 @@ with tab2:
         - **Fiber**: {targets['fiber']}g aids digestion and satiety
         - **Sodium**: Keep under {targets['sodium']}mg for heart health
         """)
+        
+        # Add expandable documentation about nutrition target criteria
+        with st.expander("📚 **How Are These Targets Calculated?** (Click to Learn More)"):
+            st.markdown("""
+            ### Nutrition Target Calculation Methodology
+            
+            Your personalized nutrition targets are calculated based on scientifically-backed guidelines:
+            
+            #### 📊 **Base Targets by Health Goal**
+            EatWise uses established nutritional guidelines adjusted for five distinct health goals:
+            
+            - **General Wellness**: Balanced nutrition for overall health (2000 cal/day baseline)
+            - **Weight Loss**: Moderate calorie deficit with high protein to preserve muscle (1500 cal/day)
+            - **Muscle Gain**: Calorie surplus with elevated protein for muscle building (2500 cal/day)
+            - **Energy Boost**: Optimized carbs and calories for sustained energy (2200 cal/day)
+            - **Heart Health**: Lower sodium and optimized fat ratios for cardiovascular wellness (1800 cal/day)
+            
+            #### ♀️♂️ **Gender Adjustments**
+            Base targets are adjusted by gender to account for physiological differences:
+            
+            - **Female**: ~85% of base targets (average lower caloric needs and protein requirements)
+            - **Male**: ~110% of base targets (average higher caloric needs and protein requirements)
+            - **Other**: Base targets applied as-is
+            
+            *Source: Standard nutritional guidelines recognize biological differences in metabolic rate and body composition.*
+            
+            #### 🎯 **Key Macronutrient Guidelines**
+            
+            | Nutrient | Basis | Notes |
+            |----------|-------|-------|
+            | **Protein** | 0.8-1.1g per lb of bodyweight (adjusted by goal) | Supports muscle maintenance and growth |
+            | **Carbohydrates** | 45-65% of total calories | Primary energy source |
+            | **Fat** | 20-35% of total calories | Essential for hormone and brain function |
+            | **Fiber** | 25-35g/day | Supports digestive health and satiety |
+            | **Sodium** | <2300mg/day (1500mg for heart health) | Follows FDA/AHA guidelines |
+            
+            #### 📖 **Information Sources**
+            
+            These targets are based on guidelines from:
+            - **USDA Dietary Guidelines for Americans** (2020-2025)
+            - **Academy of Nutrition and Dietetics** (AND)
+            - **American Heart Association** (AHA) cardiovascular recommendations
+            - **WHO/FAO** protein and energy requirements
+            - **Mayo Clinic** and **Harvard Health** nutritional science
+            
+            #### ⚠️ **Important Notes**
+            
+            - These are **general recommendations** and individual needs may vary
+            - Factors like age, weight, height, activity level, and metabolism affect actual requirements
+            - **Consult a registered dietitian** for personalized medical nutrition therapy
+            - If you have health conditions, adjust targets under professional guidance
+            - These targets should work alongside your meal analysis, not replace professional medical advice
+            
+            #### 🔄 **How Targets Are Used**
+            
+            Your nutrition targets help:
+            1. Set daily goals for balanced eating
+            2. Compare against your actual meal nutrition (see in Meal Analysis tab)
+            3. Provide context for the Quick Tips feature
+            4. Guide coaching recommendations tailored to your health goal
+            """)
         
         if st.session_state.profile["health_conditions"]:
             st.markdown(f"**Your Health Conditions:** {', '.join(st.session_state.profile['health_conditions'])}")
