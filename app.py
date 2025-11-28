@@ -1,7 +1,5 @@
 """
-EatWise AI - Ultra-Minimal Interim Version
-Pure LLM-focused food intelligence without database or authentication
-Session-only profile: user data resets on page refresh
+EatWise AI - Interim Version
 """
 
 import streamlit as st
@@ -230,6 +228,64 @@ def extract_rating(text: str) -> tuple:
     
     return None, None
 
+def generate_quick_tips(nutrition_data: dict, profile: dict) -> list:
+    """Generate contextual quick tips based on detected nutrients vs targets"""
+    tips = []
+    
+    # Get targets for the user's health goal
+    targets = get_nutrition_targets(profile)
+    
+    # Extract numeric values from nutrition data
+    def get_numeric_value(value_str):
+        """Extract numeric value from strings like '450 cal' or '25 g'"""
+        if not value_str:
+            return 0
+        import re
+        match = re.search(r'(\d+)', str(value_str))
+        return int(match.group(1)) if match else 0
+    
+    # Check protein intake
+    protein_val = get_numeric_value(nutrition_data.get('protein', '0'))
+    protein_target = targets.get('protein', 50)
+    if protein_val >= protein_target * 0.9:
+        tips.append("💪 Excellent protein intake!")
+    elif protein_val < protein_target * 0.3:
+        tips.append("💪 Consider adding more protein-rich foods")
+    
+    # Check fiber intake
+    fiber_val = get_numeric_value(nutrition_data.get('fiber', '0'))
+    fiber_target = targets.get('fiber', 25)
+    if fiber_val >= fiber_target * 0.8:
+        tips.append("🥗 Great fiber content!")
+    elif fiber_val < fiber_target * 0.3:
+        tips.append("🥗 Add more fiber with whole grains and vegetables")
+    
+    # Check sodium intake
+    sodium_val = get_numeric_value(nutrition_data.get('sodium', '0'))
+    sodium_target = targets.get('sodium', 2300)
+    if sodium_val > sodium_target * 0.8:
+        tips.append("🧂 Watch the sodium intake in this meal")
+    
+    # Check calorie balance
+    calories_val = get_numeric_value(nutrition_data.get('calories', '0'))
+    calories_target = targets.get('calories', 2000)
+    if calories_val > calories_target * 1.2:
+        tips.append("🔥 This meal is calorie-dense for the daily target")
+    elif calories_val < calories_target * 0.3 and calories_val > 50:
+        tips.append("🔥 Light meal - consider pairing with other foods")
+    
+    # Check carbs
+    carbs_val = get_numeric_value(nutrition_data.get('carbs', '0'))
+    protein_ratio = (protein_val / (carbs_val + 1)) * 100
+    if protein_ratio > 50:
+        tips.append("⚡ High protein-to-carb ratio - good balance")
+    
+    # Add a positive note if everything looks good
+    if not tips:
+        tips.append("✅ Balanced meal composition")
+    
+    return tips[:3]  # Return top 3 tips
+
 def display_meal_analysis(analysis_text: str):
     """Display meal analysis with beautiful, well-organized sections"""
     
@@ -457,6 +513,15 @@ def display_meal_analysis(analysis_text: str):
         st.info("📊 Nutritional details being extracted...")
     
     st.divider()
+    
+    # DISPLAY SECTION 2.5: Quick Tips
+    if nutrition_data and "age_group" in st.session_state.profile and st.session_state.profile.get("age_group") != "Not selected":
+        quick_tips = generate_quick_tips(nutrition_data, st.session_state.profile)
+        if quick_tips:
+            st.markdown('<div class="section-header">⚡ Quick Tips</div>', unsafe_allow_html=True)
+            for tip in quick_tips:
+                st.markdown(f'<div class="advice-item">{tip}</div>', unsafe_allow_html=True)
+            st.divider()
     
     # DISPLAY SECTION 3: Personalized Advice (Full Width)
     st.markdown('<div class="section-header">💡 Personalized Advice</div>', unsafe_allow_html=True)
