@@ -187,57 +187,36 @@ def extract_nutrition_numbers(text: str) -> dict:
     """Extract nutrition information from the analysis text"""
     nutrition = {}
     
-    # More flexible pattern matching for nutrition data
+    # More flexible pattern matching for nutrition data (including decimals)
     patterns = {
         'calories': [
-            r'\*\*calories?\*\*:?\s*(\d+)',
-            r'calories?:?\s*(\d+)(?:\s*-\s*|\s*to\s*)(\d+)',
-            r'(\d+)(?:\s*-\s*|\s*to\s*)(\d+)\s*calories',
-            r'approximately?\s*(\d+)\s*calories',
-            r'about\s*(\d+)\s*kcal',
-            r'(\d+)\s*(?:calories?|kcal|cal(?:ories)?)'
+            r'\*\*calories?\*\*:?\s*(\d+(?:\.\d+)?)',
+            r'calories?:?\s*(\d+(?:\.\d+)?)\s*(?:cal|kcal)',
+            r'(?:approximately?|about)?\s*(\d+(?:\.\d+)?)\s*(?:calories?|kcal|cal)',
         ],
         'protein': [
-            r'\*\*protein\*\*:?\s*(\d+)\s*g',
-            r'protein:?\s*(\d+)(?:\s*-\s*|\s*to\s*)(\d+)\s*g',
-            r'(\d+)(?:\s*-\s*|\s*to\s*)(\d+)\s*g(?:ram)?s?(?:\s*of)?\s*protein',
-            r'(\d+)\s*(?:gram)?s?(?:\s*of)?\s*protein',
-            r'protein:?\s*(\d+)\s*g'
+            r'\*\*protein\*\*:?\s*(\d+(?:\.\d+)?)\s*g',
+            r'protein:?\s*(\d+(?:\.\d+)?)\s*g',
         ],
         'carbs': [
-            r'\*\*carbs?(?:ohydrate)?s?\*\*:?\s*(\d+)\s*g',
-            r'carbs?(?:ohydrate)?s?:?\s*(\d+)(?:\s*-\s*|\s*to\s*)(\d+)\s*g',
-            r'(\d+)(?:\s*-\s*|\s*to\s*)(\d+)\s*g(?:ram)?s?(?:\s*of)?\s*carbs?(?:ohydrate)?s?',
-            r'(\d+)\s*g(?:ram)?s?(?:\s*of)?\s*carbs?(?:ohydrate)?s?',
-            r'carbs?(?:ohydrate)?s?:?\s*(\d+)\s*g'
+            r'\*\*carbs?(?:ohydrate)?s?\*\*:?\s*(\d+(?:\.\d+)?)\s*g',
+            r'carbs?(?:ohydrate)?s?:?\s*(\d+(?:\.\d+)?)\s*g',
         ],
         'fat': [
-            r'\*\*fat\*\*:?\s*(\d+)\s*g',
-            r'fat:?\s*(\d+)(?:\s*-\s*|\s*to\s*)(\d+)\s*g',
-            r'(\d+)(?:\s*-\s*|\s*to\s*)(\d+)\s*g(?:ram)?s?(?:\s*of)?\s*fat',
-            r'(\d+)\s*g(?:gram)?s?(?:\s*of)?\s*fat',
-            r'fat:?\s*(\d+)\s*g'
+            r'\*\*fat\*\*:?\s*(\d+(?:\.\d+)?)\s*g',
+            r'fat:?\s*(\d+(?:\.\d+)?)\s*g',
         ],
         'fiber': [
-            r'\*\*fiber\*\*:?\s*(\d+)\s*g',
-            r'fiber:?\s*(\d+)(?:\s*-\s*|\s*to\s*)(\d+)\s*g',
-            r'(\d+)(?:\s*-\s*|\s*to\s*)(\d+)\s*g(?:ram)?s?(?:\s*of)?\s*fiber',
-            r'(\d+)\s*g(?:ram)?s?(?:\s*of)?\s*fiber',
-            r'fiber:?\s*(\d+)\s*g'
+            r'\*\*fiber\*\*:?\s*(\d+(?:\.\d+)?)\s*g',
+            r'fiber:?\s*(\d+(?:\.\d+)?)\s*g',
         ],
         'sodium': [
-            r'\*\*sodium\*\*:?\s*(\d+)\s*mg',
-            r'sodium:?\s*(\d+)(?:\s*-\s*|\s*to\s*)(\d+)\s*mg',
-            r'(\d+)(?:\s*-\s*|\s*to\s*)(\d+)\s*mg(?:\s*of)?\s*sodium',
-            r'(\d+)\s*mg(?:\s*of)?\s*sodium',
-            r'sodium:?\s*(\d+)\s*mg'
+            r'\*\*sodium\*\*:?\s*(\d+(?:\.\d+)?)\s*mg',
+            r'sodium:?\s*(\d+(?:\.\d+)?)\s*mg',
         ],
         'sugar': [
-            r'\*\*sugar\*\*:?\s*(\d+)\s*g',
-            r'sugar:?\s*(\d+)(?:\s*-\s*|\s*to\s*)(\d+)\s*g',
-            r'(\d+)(?:\s*-\s*|\s*to\s*)(\d+)\s*g(?:ram)?s?(?:\s*of)?\s*sugar',
-            r'(\d+)\s*g(?:ram)?s?(?:\s*of)?\s*sugar',
-            r'sugar:?\s*(\d+)\s*g'
+            r'\*\*sugar\*\*:?\s*(\d+(?:\.\d+)?)\s*g',
+            r'sugar:?\s*(\d+(?:\.\d+)?)\s*g',
         ]
     }
     
@@ -247,26 +226,16 @@ def extract_nutrition_numbers(text: str) -> dict:
         for pattern in pattern_list:
             match = re.search(pattern, text_lower, re.IGNORECASE)
             if match:
-                # Get the matched text
-                raw_value = match.group(0).strip()
+                value = match.group(1).strip()
                 
-                # Extract just the numbers and units
-                numbers = re.findall(r'\d+', raw_value)
-                if numbers:
-                    # For ranges, show "X-Y" format; for single values, just show the number
-                    if len(numbers) >= 2 and 'to' in raw_value.lower() or '-' in raw_value:
-                        value = f"{numbers[0]}-{numbers[1]}"
-                    else:
-                        value = numbers[0] if numbers else raw_value
-                    
-                    # Add unit
-                    if key == 'calories':
-                        nutrition[key] = f"{value} cal"
-                    elif key == 'sodium':
-                        nutrition[key] = f"{value} mg"
-                    else:
-                        nutrition[key] = f"{value} g"
-                    break  # Found match for this nutrient, move to next
+                # Add unit
+                if key == 'calories':
+                    nutrition[key] = f"{value} cal"
+                elif key == 'sodium':
+                    nutrition[key] = f"{value} mg"
+                else:
+                    nutrition[key] = f"{value} g"
+                break  # Found match for this nutrient, move to next
     
     return nutrition
 

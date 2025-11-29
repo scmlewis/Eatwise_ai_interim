@@ -137,32 +137,29 @@ Format as JSON:
             # Step 4: Generate personalized analysis with accurate nutrition values
             context = self._build_profile_context(profile)
             
-            analysis_prompt = f"""Based on this meal analysis, provide comprehensive health guidance:
-
-Meal: {meal_description}
-Nutrition Summary:
-- **Calories**: {total_nutrition['calories']} cal
+            # Format nutrition values for embedding in response
+            nutrition_section = f"""**Nutrition Facts**:
+- **Calories**: {int(total_nutrition['calories'])} cal
 - **Protein**: {total_nutrition['protein']}g
 - **Carbs**: {total_nutrition['carbs']}g
 - **Fat**: {total_nutrition['fat']}g
 - **Fiber**: {total_nutrition['fiber']}g
-- **Sodium**: {total_nutrition['sodium']}mg
-- **Sugar**: {total_nutrition['sugar']}g
+- **Sodium**: {int(total_nutrition['sodium'])}mg
+- **Sugar**: {total_nutrition['sugar']}g"""
+            
+            analysis_prompt = f"""Based on this meal analysis, provide comprehensive health guidance:
+
+Meal: {meal_description}
+
+{nutrition_section}
 
 User Profile:
 {context}
 
-Provide a comprehensive analysis including:
+IMPORTANT: You must include the exact nutrition facts above in your response. Then provide:
 1. **Your Meal**: Description and food items
-2. **Nutrition Facts**: Start with exactly these values:
-   - **Calories**: {total_nutrition['calories']} cal
-   - **Protein**: {total_nutrition['protein']}g
-   - **Carbs**: {total_nutrition['carbs']}g
-   - **Fat**: {total_nutrition['fat']}g
-   - **Fiber**: {total_nutrition['fiber']}g
-   - **Sodium**: {total_nutrition['sodium']}mg
-   - **Sugar**: {total_nutrition['sugar']}g
-3. **Analysis**: Interpretation of the nutrition values
+2. Copy the Nutrition Facts section exactly as shown above
+3. **Analysis**: Interpretation of the nutrition values and meal quality
 4. **Health Rating**: Rate this meal 1-10 for overall healthiness
 5. **Personalized Advice**: Tips specific to their health goal and conditions
 
@@ -173,15 +170,15 @@ Format with clear paragraphs and a "Health Rating: X/10" line."""
                 messages=[
                     {
                         "role": "system",
-                        "content": "You are a nutrition expert. You MUST include the exact nutrition values provided. Format your response as clear paragraphs with the nutrition facts clearly stated."
+                        "content": "You are a nutrition expert. You MUST include the Nutrition Facts section exactly as provided. Include the specific numbers without modification. Format your response as clear paragraphs."
                     },
                     {
                         "role": "user",
                         "content": analysis_prompt
                     }
                 ],
-                temperature=0.7,
-                max_tokens=800
+                temperature=0.5,  # Lower temperature for consistency
+                max_tokens=900
             )
             
             return final_response.choices[0].message.content
@@ -251,32 +248,29 @@ Common units: g, oz, cup, tbsp, tsp, slice, medium, small, large"""
             # Step 4: Generate personalized analysis
             context = self._build_profile_context(profile)
             
-            analysis_prompt = f"""Based on this meal analysis, provide comprehensive health guidance:
-
-Meal: {extraction_data.get('meal_description', meal_description)}
-Nutrition Summary:
-- **Calories**: {total_nutrition['calories']} cal
+            # Format nutrition values for embedding in response
+            nutrition_section = f"""**Nutrition Facts**:
+- **Calories**: {int(total_nutrition['calories'])} cal
 - **Protein**: {total_nutrition['protein']}g
 - **Carbs**: {total_nutrition['carbs']}g
 - **Fat**: {total_nutrition['fat']}g
 - **Fiber**: {total_nutrition['fiber']}g
-- **Sodium**: {total_nutrition['sodium']}mg
-- **Sugar**: {total_nutrition['sugar']}g
+- **Sodium**: {int(total_nutrition['sodium'])}mg
+- **Sugar**: {total_nutrition['sugar']}g"""
+            
+            analysis_prompt = f"""Based on this meal analysis, provide comprehensive health guidance:
+
+Meal: {extraction_data.get('meal_description', meal_description)}
+
+{nutrition_section}
 
 User Profile:
 {context}
 
-Provide a comprehensive analysis including:
+IMPORTANT: You must include the exact nutrition facts above in your response. Then provide:
 1. **Your Meal**: Description of the food items
-2. **Nutrition Facts**: Start with exactly these values:
-   - **Calories**: {total_nutrition['calories']} cal
-   - **Protein**: {total_nutrition['protein']}g
-   - **Carbs**: {total_nutrition['carbs']}g
-   - **Fat**: {total_nutrition['fat']}g
-   - **Fiber**: {total_nutrition['fiber']}g
-   - **Sodium**: {total_nutrition['sodium']}mg
-   - **Sugar**: {total_nutrition['sugar']}g
-3. **Analysis**: Interpretation of the values
+2. Copy the Nutrition Facts section exactly as shown above
+3. **Analysis**: Interpretation of the values and meal quality
 4. **Health Rating**: Rate this meal 1-10 for overall healthiness
 5. **Personalized Recommendations**: Tips specific to their health goal and conditions
 
@@ -287,15 +281,15 @@ Format with clear paragraphs and a "Health Rating: X/10" line."""
                 messages=[
                     {
                         "role": "system",
-                        "content": "You are a nutrition expert. You MUST include the exact nutrition values provided. Format your response as clear paragraphs with the nutrition facts clearly stated."
+                        "content": "You are a nutrition expert. You MUST include the Nutrition Facts section exactly as provided. Include the specific numbers without modification. Format your response as clear paragraphs."
                     },
                     {
                         "role": "user",
                         "content": analysis_prompt
                     }
                 ],
-                temperature=0.7,
-                max_tokens=800
+                temperature=0.5,  # Lower temperature for consistency
+                max_tokens=900
             )
             
             return final_response.choices[0].message.content
