@@ -7,6 +7,12 @@ from datetime import datetime
 from PIL import Image
 import io
 import re
+import sys
+from pathlib import Path
+
+# Add src directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent / "src"))
+
 from nutrition_analyzer import NutritionAnalyzer
 from config import APP_NAME, OPENAI_API_KEY, AZURE_OPENAI_ENDPOINT, AZURE_OPENAI_DEPLOYMENT, AZURE_OPENAI_API_VERSION
 

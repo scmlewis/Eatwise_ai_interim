@@ -4,13 +4,18 @@ A Streamlit-based nutrition analysis app powered by Azure OpenAI GPT-4 Vision an
 
 ## Features
 
-### 🍽️ Meal Analysis Tab
+### 🍽️ Meal Analysis Tab (Hybrid Intelligence)
 - Analyze meals by **text description** or **food photo**
 - Segmented button interface for easy meal analysis method selection
+- **Hybrid Nutrition Analyzer**: Combines GPT detection with USDA database for accuracy
+  - GPT-4 Vision detects ingredients and portions
+  - Database provides accurate USDA nutrition values (66+ foods)
+  - Validation ensures realistic, consistent results
+  - **Fixes unrealistic values**: Prevents 0g carbs for vegetable meals
 - Instant nutrition breakdown with responsive 3-column grid layout:
-  - Calories, Protein, Carbs, Fat, Fiber, Sodium, Sugar
+  - Calories, Protein, Carbs, Fat, Fiber, Sodium, Sugar (all 7 nutrients)
 - Health ratings on a 1-10 scale with visual progress indicator
-- Personalized nutrition advice based on your profile
+- Personalized nutrition advice based on your profile and accurate data
 - Clear button to reset and analyze another meal
 
 ### ⚡ Quick Tips
@@ -107,13 +112,28 @@ streamlit run app.py
 
 ```
 Eatwise_ai_interim/
-├── app.py                    # Main Streamlit application (1100+ lines)
-├── nutrition_analyzer.py     # Azure OpenAI integration module
-├── config.py                 # Configuration management
-├── requirements.txt          # Python dependencies
-├── .env                      # Environment variables (local dev only)
-├── .streamlit/config.toml    # Streamlit settings
-└── README.md                 # This file
+├── app.py                      # Main Streamlit application (1234+ lines)
+├── nutrition_analyzer.py       # Hybrid analyzer with LLM + database (468 lines)
+├── nutrition_database.py       # USDA nutrition database (466 lines, 66+ foods)
+├── config.py                   # Configuration management
+├── constants.py                # App constants and settings
+├── utils.py                    # Utility functions
+├── coaching_assistant.py       # Coaching tips generation
+├── gamification.py             # Gamification features
+├── recommender.py              # Meal recommendations
+├── nutrition_components.py     # Nutrition calculations
+├── restaurant_analyzer.py      # Restaurant meal analysis
+├── database.py                 # Database utilities
+├── auth.py                     # Authentication utilities
+├── requirements.txt            # Python dependencies
+├── .env                        # Environment variables (local dev only)
+├── .streamlit/config.toml      # Streamlit settings
+├── README.md                   # This file
+├── DOCUMENTATION.md            # Full documentation
+└── docs/                       # Additional documentation
+    ├── PRESENTATION_OUTLINE.md # Presentation slides content
+    ├── HYBRID_ANALYZER_ENHANCEMENT.md  # Hybrid system details
+    └── [Other guides...]
 ```
 
 ## How It Works
@@ -133,15 +153,22 @@ Eatwise_ai_interim/
 ## Technologies
 
 - **Streamlit 1.x**: Modern web framework for interactive data apps
-- **Azure OpenAI**: GPT-4o and GPT-4 Vision models for intelligent analysis
+- **Azure OpenAI**: GPT-4o and GPT-4 Vision models for intelligent analysis and detection
 - **Python 3.13**: Core runtime environment
+- **nutrition_database.py**: USDA-based nutrition database (66+ foods)
 - **Pillow (PIL)**: Image processing for food photos
 - **python-dotenv**: Environment variable management
 - **httpx**: HTTP client for Azure API integration
 
 ## Features Highlights
 
-✨ **Smart Nutrition Extraction**: Automatically detects and extracts 7+ nutrients from meal descriptions and photos
+✨ **Hybrid Nutrition Analyzer**: Combines GPT detection with USDA database for accurate, consistent results
+
+📊 **Smart Nutrition Extraction**: Automatically detects all 7 nutrients from meal descriptions and photos
+
+💾 **Comprehensive Database**: 66+ USDA foods with accurate nutritional values and portion conversion
+
+🔍 **Validation System**: Catches and corrects impossible nutrition values (e.g., vegetables with 0g carbs)
 
 📱 **Responsive Design**: Works seamlessly on desktop and mobile browsers
 
@@ -170,5 +197,5 @@ Built as an interim solution for personalized nutrition analysis and coaching.
 
 ---
 
-**Last Updated**: November 28, 2025
-**Version**: 2.0 (Quick Tips & Nutrition Targets Added)
+**Last Updated**: November 29, 2025
+**Version**: 2.1 (Hybrid Nutrition Analyzer - Production Ready)

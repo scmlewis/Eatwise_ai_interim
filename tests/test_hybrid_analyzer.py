@@ -3,6 +3,12 @@ Hybrid Nutrition Analyzer - Demonstration Script
 Shows improvement of LLM-only approach vs hybrid approach
 """
 
+import sys
+from pathlib import Path
+
+# Add src directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
+
 from nutrition_database import (
     find_food_matches, 
     get_nutrition_for_portion, 

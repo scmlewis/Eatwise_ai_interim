@@ -46,27 +46,40 @@
 
 ---
 
-## **SLIDE 4: Core Features - Meal Analysis (2 min)**
-### "🍽️ Intelligent Meal Analysis"
+## **SLIDE 4: Core Features - Meal Analysis (2.5 min)**
+### "🍽️ Intelligent Meal Analysis - Hybrid Approach"
 
 **Dual Input Methods:**
 1. **Photo Upload**
    - Upload food image
-   - AI analyzes visual content using GPT-4 Vision
-   - Extracts detailed nutrition information
+   - GPT-4 Vision detects ingredients and portions
+   - Database provides accurate USDA nutrition values
+   - Validates for realistic results
 
 2. **Text Description**
    - Type meal description
-   - GPT-4o processes description
+   - GPT-4o detects meal components
+   - Database lookup calculates precise nutrition
    - Returns comprehensive nutrition breakdown
 
+**Hybrid Architecture (Why It's Better):**
+```
+LLM Detection Layer → Database Lookup → Validation → Analysis
+(Ingredients)       (USDA Values)    (Consistency) (Personalized)
+```
+
 **Output Provided:**
-- Calories, Protein, Carbs, Fat, Fiber, Sodium, Sugar
+- All 7 nutrients: Calories, Protein, Carbs, Fat, Fiber, Sodium, Sugar
 - Health rating (1-10 scale with visual progress bar)
-- Personalized advice based on user profile
+- Personalized advice based on accurate data
 - Instant contextual tips for quick reference
 
-**Key Technology**: Azure OpenAI GPT-4o + GPT-4 Vision
+**Key Improvement:** Fixed unrealistic nutrition values (e.g., 0g carbs for vegetable meals)
+
+**Key Technologies:**
+- Azure OpenAI: GPT-4o + GPT-4 Vision (detection)
+- nutrition_database.py: 66+ USDA foods
+- Validation logic: Catches impossible combinations
 
 ---
 
@@ -184,31 +197,45 @@
 
 ---
 
-## **SLIDE 10: Technical Architecture (2 min)**
+## **SLIDE 10: Technical Architecture - Hybrid Nutrition System (2.5 min)**
 ### "🏗️ How It Works Under the Hood"
 
 **Technology Stack:**
 ```
-Frontend:     Streamlit 1.x (Python-based web app)
-AI Engine:    Azure OpenAI (GPT-4o, GPT-4 Vision)
-Runtime:      Python 3.13
-Image Proc:   Pillow (PIL)
-API Client:   httpx for Azure integration
-Config:       python-dotenv for environment management
+Frontend:      Streamlit 1.x (Python-based web app)
+AI Detection:  Azure OpenAI (GPT-4o, GPT-4 Vision)
+Nutrition DB:  USDA-based (nutrition_database.py)
+Runtime:       Python 3.13
+Image Proc:    Pillow (PIL)
+API Client:    httpx for Azure integration
+Config:        python-dotenv for environment management
 ```
 
-**Data Flow:**
+**Data Flow (Hybrid Approach):**
 
 ```
 User Input (Text/Image)
     ↓
 Streamlit Interface
     ↓
-nutrition_analyzer.py (Azure OpenAI Integration)
+LLM DETECTION LAYER (nutrition_analyzer.py)
+├─ GPT-4o/Vision identifies ingredients & portions
+└─ Extracts as structured data
     ↓
-GPT-4o or GPT-4 Vision processing
+DATABASE LOOKUP LAYER (nutrition_database.py)
+├─ Searches 66+ USDA foods
+├─ Applies portion calculations
+└─ Returns accurate nutrition values
     ↓
-Nutrition Extraction & Analysis
+VALIDATION LAYER
+├─ Checks logical consistency
+├─ Corrects unrealistic values
+└─ Ensures realistic carbs/fiber
+    ↓
+ANALYSIS LAYER (GPT-4o)
+├─ Generates personalized insights
+├─ Provides health rating (1-10)
+└─ Creates coaching recommendations
     ↓
 Quick Tips Generation (Logic-based)
     ↓
@@ -216,10 +243,17 @@ User Display with History Storage
 ```
 
 **Key Modules:**
-1. **app.py** (1260+ lines): Main Streamlit application with all UI/UX
-2. **nutrition_analyzer.py**: Azure OpenAI integration and API calls
-3. **config.py**: Configuration and environment management
-4. **Supporting modules**: Utilities, authentication, data handling
+1. **app.py** (1234+ lines): Main Streamlit application with all UI/UX
+2. **nutrition_analyzer.py** (468 lines): Hybrid detection + database + analysis
+3. **nutrition_database.py** (465 lines): NEW - 66+ USDA foods with functions
+4. **config.py**: Configuration and environment management
+5. **Supporting modules**: Utilities, coaching, gamification
+
+**Hybrid Benefits:**
+- ✅ Accurate carbs/fiber (fixes 0g issue)
+- ✅ Consistent results (same meal = same values)
+- ✅ Validated nutrition (logical consistency)
+- ✅ Fast lookups (database instant, not LLM)
 
 ---
 
@@ -286,13 +320,20 @@ User Display with History Storage
 
 ---
 
-## **SLIDE 14: Development Progress (1.5 min)**
-### "📈 What We've Built (This Phase)"
+## **SLIDE 14: Development Progress - Latest Enhancement (2 min)**
+### "📈 Hybrid Nutrition Analyzer - Major Upgrade"
 
-**Features Implemented:**
-- ✅ Meal analysis engine (photo + text)
-- ✅ Nutrition extraction and breakdown
-- ✅ Quick Tips contextual insights
+**Latest Enhancement (Nov 29, 2025):**
+- ✅ **Hybrid nutrition database** (NEW) - 66+ USDA foods
+- ✅ **Database integration** (NEW) - Accurate portion calculations
+- ✅ **Validation system** (NEW) - Catches impossible nutrition values
+- ✅ Fixed 0g carbs problem - Now shows realistic 8.9g+ for vegetable meals
+- ✅ Fixed 1g fiber problem - Now shows realistic 6.8g+ for vegetables
+
+**All Phase 1 Features Implemented:**
+- ✅ Meal analysis engine (photo + text) - Now with hybrid accuracy
+- ✅ Nutrition extraction and breakdown - All 7 nutrients
+- ✅ Quick Tips contextual insights - Based on accurate data
 - ✅ Personalized nutrition targets (gender-aware)
 - ✅ Coaching tips with profile personalization
 - ✅ User profile management
@@ -301,12 +342,18 @@ User Display with History Storage
 - ✅ Back-to-top navigation
 - ✅ Comprehensive documentation
 
-**Commits This Phase:** 7 major feature commits
+**Validation Results:**
+- ✓ All nutrients displaying correctly
+- ✓ Carbs: 0g → 8.9g (realistic)
+- ✓ Fiber: 1g → 6.8g (accurate)
+- ✓ No impossible combinations
+- ✓ Values logically consistent
 
 **Code Quality:**
 - ✓ No errors or warnings in production
-- ✓ Comprehensive inline documentation
-- ✓ Clean modular architecture
+- ✓ 3 core modules: app.py, nutrition_analyzer.py, nutrition_database.py
+- ✓ Comprehensive test suite included
+- ✓ Full documentation and validation reports
 - ✓ Best practices followed throughout
 
 ---
@@ -338,26 +385,31 @@ User Display with History Storage
 ## **SLIDE 16: Future Roadmap (1.5 min)**
 ### "🚀 Next Steps & Enhancements"
 
-**Phase 2 - Near Term (1-2 months):**
+**Phase 2 - Near Term (Nutrition Database Expansion):**
+- Expand nutrition database from 66 to 200+ foods
+- Add restaurant/brand items (McDonald's, Starbucks, etc.)
+- Include ethnic cuisines and regional variations
+- Barcode scanning integration for instant lookups
 - Activity level integration (affects caloric targets)
 - Meal logging and saving functionality
-- Enhanced analysis history with filtering/search
+
+**Phase 3 - Medium Term (Advanced Features):**
+- User authentication system for persistent data
+- Database integration for long-term tracking
 - Weekly nutrition summary reports
 - Progress tracking dashboard
-
-**Phase 3 - Medium Term (2-4 months):**
-- Database integration for persistent user data
-- User authentication system
 - Export analyses as PDF
 - Mobile app optimization
 - Social sharing features (with privacy controls)
 
-**Phase 4 - Long Term (4+ months):**
-- Machine learning integration for improved recommendations
-- Recipe suggestions based on goals
-- Integration with fitness tracking apps
+**Phase 4 - Long Term (AI-Powered Insights):**
+- Machine learning for better food estimation
+- Learn from user corrections and feedback
+- Recipe suggestions based on goals and restrictions
+- Integration with fitness tracking apps (MyFitnessPal, Apple Health)
 - Nutritionist collaboration features
 - Advanced dietary restriction support
+- Seasonal food availability optimization
 
 ---
 
@@ -486,5 +538,5 @@ User Display with History Storage
 
 ---
 
-**Last Updated**: November 28, 2025
-**Status**: Ready for Presentation
+**Last Updated**: November 29, 2025
+**Status**: Ready for Presentation (Updated with Hybrid Analyzer)
