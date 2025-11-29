@@ -141,31 +141,39 @@ Format as JSON:
 
 Meal: {meal_description}
 Nutrition Summary:
-- Calories: {total_nutrition['calories']} cal
-- Protein: {total_nutrition['protein']}g
-- Carbs: {total_nutrition['carbs']}g
-- Fat: {total_nutrition['fat']}g
-- Fiber: {total_nutrition['fiber']}g
-- Sodium: {total_nutrition['sodium']}mg
-- Sugar: {total_nutrition['sugar']}g
+- **Calories**: {total_nutrition['calories']} cal
+- **Protein**: {total_nutrition['protein']}g
+- **Carbs**: {total_nutrition['carbs']}g
+- **Fat**: {total_nutrition['fat']}g
+- **Fiber**: {total_nutrition['fiber']}g
+- **Sodium**: {total_nutrition['sodium']}mg
+- **Sugar**: {total_nutrition['sugar']}g
 
 User Profile:
 {context}
 
 Provide a comprehensive analysis including:
 1. **Your Meal**: Description and food items
-2. **Nutrition Analysis**: Interpretation of the values above
-3. **Health Rating**: Rate this meal 1-10 for overall healthiness
-4. **Personalized Advice**: Tips specific to their health goal and conditions
+2. **Nutrition Facts**: Start with exactly these values:
+   - **Calories**: {total_nutrition['calories']} cal
+   - **Protein**: {total_nutrition['protein']}g
+   - **Carbs**: {total_nutrition['carbs']}g
+   - **Fat**: {total_nutrition['fat']}g
+   - **Fiber**: {total_nutrition['fiber']}g
+   - **Sodium**: {total_nutrition['sodium']}mg
+   - **Sugar**: {total_nutrition['sugar']}g
+3. **Analysis**: Interpretation of the nutrition values
+4. **Health Rating**: Rate this meal 1-10 for overall healthiness
+5. **Personalized Advice**: Tips specific to their health goal and conditions
 
-Format as readable paragraphs with a clear "Health Rating: X/10" line."""
+Format with clear paragraphs and a "Health Rating: X/10" line."""
             
             final_response = self.client.chat.completions.create(
                 model=self.deployment,
                 messages=[
                     {
                         "role": "system",
-                        "content": "You are a nutrition expert. Provide evidence-based analysis using the provided nutritional data. Format your response as clear paragraphs."
+                        "content": "You are a nutrition expert. You MUST include the exact nutrition values provided. Format your response as clear paragraphs with the nutrition facts clearly stated."
                     },
                     {
                         "role": "user",
@@ -247,31 +255,39 @@ Common units: g, oz, cup, tbsp, tsp, slice, medium, small, large"""
 
 Meal: {extraction_data.get('meal_description', meal_description)}
 Nutrition Summary:
-- Calories: {total_nutrition['calories']} cal
-- Protein: {total_nutrition['protein']}g
-- Carbs: {total_nutrition['carbs']}g
-- Fat: {total_nutrition['fat']}g
-- Fiber: {total_nutrition['fiber']}g
-- Sodium: {total_nutrition['sodium']}mg
-- Sugar: {total_nutrition['sugar']}g
+- **Calories**: {total_nutrition['calories']} cal
+- **Protein**: {total_nutrition['protein']}g
+- **Carbs**: {total_nutrition['carbs']}g
+- **Fat**: {total_nutrition['fat']}g
+- **Fiber**: {total_nutrition['fiber']}g
+- **Sodium**: {total_nutrition['sodium']}mg
+- **Sugar**: {total_nutrition['sugar']}g
 
 User Profile:
 {context}
 
 Provide a comprehensive analysis including:
 1. **Your Meal**: Description of the food items
-2. **Nutrition Analysis**: Interpretation of the values
-3. **Health Rating**: Rate this meal 1-10 for overall healthiness
-4. **Personalized Recommendations**: Tips specific to their health goal and conditions
+2. **Nutrition Facts**: Start with exactly these values:
+   - **Calories**: {total_nutrition['calories']} cal
+   - **Protein**: {total_nutrition['protein']}g
+   - **Carbs**: {total_nutrition['carbs']}g
+   - **Fat**: {total_nutrition['fat']}g
+   - **Fiber**: {total_nutrition['fiber']}g
+   - **Sodium**: {total_nutrition['sodium']}mg
+   - **Sugar**: {total_nutrition['sugar']}g
+3. **Analysis**: Interpretation of the values
+4. **Health Rating**: Rate this meal 1-10 for overall healthiness
+5. **Personalized Recommendations**: Tips specific to their health goal and conditions
 
-Format as readable paragraphs with a clear "Health Rating: X/10" line."""
+Format with clear paragraphs and a "Health Rating: X/10" line."""
             
             final_response = self.client.chat.completions.create(
                 model=self.deployment,
                 messages=[
                     {
                         "role": "system",
-                        "content": "You are a nutrition expert. Provide evidence-based analysis using the provided nutritional data."
+                        "content": "You are a nutrition expert. You MUST include the exact nutrition values provided. Format your response as clear paragraphs with the nutrition facts clearly stated."
                     },
                     {
                         "role": "user",
